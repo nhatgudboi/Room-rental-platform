@@ -25,3 +25,6 @@ dist/
 # Draft mindmap documents (excluded per user request)
 docs/01a-product-mindmap.md
 docs/product-mindmap-xmind.md
+
+# Slide presentation guide (excluded per user request)
+docs/slide-presentation-guide.md
