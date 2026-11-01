@@ -1,0 +1,27 @@
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+target/
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Build outputs
+build/
+dist/
+*.jar
+*.war
+
+# Logs & Data
+*.log
+
+# Draft mindmap documents (excluded per user request)
+docs/01a-product-mindmap.md
+docs/product-mindmap-xmind.md

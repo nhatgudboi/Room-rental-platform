@@ -1,0 +1,2077 @@
+openapi: 3.0.4
+info:
+  title: Smart Room Rental Platform API
+  version: 1.0.0
+  description: |
+    RESTful API Contract for **Smart Room Rental Platform** (Sàn Cho Thuê Phòng Trọ Thông Minh Tích Hợp Học Máy).
+    
+    The contract covers 11 core functional domains:
+    1. Authentication & User Profile (JWT Bearer)
+    2. Landlord KYC & Identity Verification
+    3. Room Search & Discovery (PostGIS Geolocation & University Radius Filters)
+    4. Landlord Room Management
+    5. Room Listing Moderation (Quality Gate & Discrepancy Flagging)
+    6. Machine Learning Microservice (LightGBM Price Predictor & Personalized Recommender)
+    7. Escrow Deposit Booking & VNPAY Payment Gateway
+    8. Dispute Resolution & Automated Refund
+    9. Post-Stay Verified Reviews (2-Step Verification)
+    10. In-App Real-time Messaging (WebSocket & REST History)
+    11. Administration, Analytics & System Configuration
+
+    Backend Authorization is strictly enforced based on 4 RBAC Roles:
+    `ADMIN`, `MODERATOR`, `LANDLORD`, `TENANT`.
+  contact:
+    name: Smart Rental Engineering Team
+    email: dev@smartrental.vn
+
+servers:
+  - url: /api/v1
+    description: Production & Gateway relative URL
+  - url: http://localhost:8080/api/v1
+    description: Local Spring Boot Backend Server
+  - url: http://localhost:8000/api/v1
+    description: Python FastAPI ML Microservice (Direct Engine)
+
+tags:
+  - name: Authentication
+    description: User registration, JWT login, token refresh, and session termination.
+  - name: Users & Profile
+    description: User profile inspection, password change, and self-service account management.
+  - name: Landlord KYC
+    description: Submission, inspection, and moderation of landlord identity & ownership documents.
+  - name: Rooms & Search
+    description: Public room listing discovery, university radius filtering, and room details.
+  - name: Landlord Rooms
+    description: Creation, editing, status toggling, and soft-deletion of rental room listings.
+  - name: Room Moderation
+    description: Moderator queue for listing audit, photo inspection, and AI price discrepancy flagging.
+  - name: AI Services
+    description: Real-time LightGBM price prediction and conversational rental assistant.
+  - name: Escrow Bookings
+    description: 48-hour escrow deposit bookings, status lifecycle, and check-in confirmation.
+  - name: Payments
+    description: VNPAY and MoMo payment gateway URL creation, webhook IPN, and return handling.
+  - name: Disputes
+    description: Filing and adjudication of deposit disputes with 100% refund execution.
+  - name: Reviews
+    description: Verified post-stay 4-criteria reviews and landlord official responses.
+  - name: Chat
+    description: In-app real-time messaging history and active conversation listings.
+  - name: Admin & Analytics
+    description: Financial metrics, commission revenue, user administration, and system master data.
+
+paths:
+  # =========================================================================
+  # 1. AUTHENTICATION & PROFILE
+  # =========================================================================
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new account
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email or phone number already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate and obtain JWT tokens
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh expired access token
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Invalidate user session
+      operationId: logout
+      responses:
+        '204':
+          description: Logout successful
+
+  /users/me:
+    get:
+      tags: [Users & Profile]
+      summary: Get current authenticated user profile
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user profile details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/profile:
+    put:
+      tags: [Users & Profile]
+      summary: Update user profile details
+      operationId: updateProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/password:
+    put:
+      tags: [Users & Profile]
+      summary: Change account password
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password updated successfully
+        '400':
+          description: Old password incorrect or new password validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # =========================================================================
+  # 2. LANDLORD KYC
+  # =========================================================================
+  /landlord/kyc:
+    post:
+      tags: [Landlord KYC]
+      summary: Submit landlord KYC verification documents
+      operationId: submitLandlordKYC
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitKYCRequest'
+      responses:
+        '201':
+          description: KYC submitted successfully, queued for review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags: [Landlord KYC]
+      summary: Check current landlord KYC status
+      operationId: getLandlordKYCStatus
+      responses:
+        '200':
+          description: KYC record details and status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mod/kyc:
+    get:
+      tags: [Landlord KYC]
+      summary: List pending KYC submissions (Moderator/Admin)
+      operationId: listPendingKYC
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/KYCStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Paginated list of KYC applications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCPageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /mod/kyc/{id}/approve:
+    put:
+      tags: [Landlord KYC]
+      summary: Approve landlord KYC application
+      operationId: approveKYC
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: KYC approved, landlord account upgraded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /mod/kyc/{id}/reject:
+    put:
+      tags: [Landlord KYC]
+      summary: Reject landlord KYC application with reason
+      operationId: rejectKYC
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectReasonRequest'
+      responses:
+        '200':
+          description: KYC rejected with feedback sent to landlord
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # =========================================================================
+  # 3. ROOMS & SEARCH (PUBLIC & TENANT)
+  # =========================================================================
+  /rooms:
+    get:
+      tags: [Rooms & Search]
+      summary: List public verified rooms with pagination
+      operationId: listRooms
+      security: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 12
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, newest, rating_desc]
+            default: newest
+      responses:
+        '200':
+          description: Paginated rooms list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomPageResponse'
+
+  /rooms/search:
+    get:
+      tags: [Rooms & Search]
+      summary: Multi-criteria room search with university landmark & radius
+      operationId: searchRooms
+      security: []
+      parameters:
+        - name: universityId
+          in: query
+          description: ID of target university landmark
+          schema:
+            type: integer
+        - name: radiusKm
+          in: query
+          description: Distance radius in kilometers
+          schema:
+            type: number
+            format: float
+            default: 3.0
+        - name: districtId
+          in: query
+          schema:
+            type: integer
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minArea
+          in: query
+          schema:
+            type: number
+        - name: hasAirConditioner
+          in: query
+          schema:
+            type: boolean
+        - name: hasWashingMachine
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 12
+      responses:
+        '200':
+          description: Search results matching filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomPageResponse'
+
+  /rooms/{id}:
+    get:
+      tags: [Rooms & Search]
+      summary: Get room detailed view with amenities, images, and AI price gauge
+      operationId: getRoomById
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Detailed room specifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /rooms/recommendations:
+    get:
+      tags: [Rooms & Search]
+      summary: Get personalized room recommendations for logged-in tenant
+      operationId: getRecommendations
+      responses:
+        '200':
+          description: Top recommended rooms based on viewing history and preferences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoomSummaryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /districts:
+    get:
+      tags: [Rooms & Search]
+      summary: List all districts with coordinates
+      operationId: listDistricts
+      security: []
+      responses:
+        '200':
+          description: Districts list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DistrictResponse'
+
+  /landmarks:
+    get:
+      tags: [Rooms & Search]
+      summary: List university landmarks
+      operationId: listLandmarks
+      security: []
+      responses:
+        '200':
+          description: Universities and educational hubs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LandmarkResponse'
+
+  # =========================================================================
+  # 4. LANDLORD ROOM MANAGEMENT
+  # =========================================================================
+  /landlord/rooms:
+    get:
+      tags: [Landlord Rooms]
+      summary: List rooms managed by logged-in landlord
+      operationId: getLandlordRooms
+      responses:
+        '200':
+          description: Landlord room portfolio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoomSummaryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Landlord Rooms]
+      summary: Create a new room listing (Requires VERIFIED_LANDLORD)
+      operationId: createRoomListing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoomRequest'
+      responses:
+        '201':
+          description: Room created and placed in PENDING_APPROVAL queue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomDetailResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Landlord KYC is not yet verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /landlord/rooms/{id}:
+    put:
+      tags: [Landlord Rooms]
+      summary: Update room details
+      operationId: updateRoomListing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoomRequest'
+      responses:
+        '200':
+          description: Room updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomDetailResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Landlord Rooms]
+      summary: Soft-delete a room listing
+      operationId: deleteRoomListing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Room soft-deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /landlord/rooms/{id}/status:
+    put:
+      tags: [Landlord Rooms]
+      summary: Toggle room availability status (AVAILABLE, RENTED, MAINTENANCE)
+      operationId: updateRoomStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  $ref: '#/components/schemas/RoomStatus'
+      responses:
+        '200':
+          description: Status updated
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # =========================================================================
+  # 5. ROOM MODERATION
+  # =========================================================================
+  /mod/rooms:
+    get:
+      tags: [Room Moderation]
+      summary: List pending room listings for audit (Moderator/Admin)
+      operationId: listPendingRooms
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Rooms awaiting moderation with AI pricing discrepancy flags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomPageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /mod/rooms/{id}/approve:
+    put:
+      tags: [Room Moderation]
+      summary: Approve room listing for public publishing
+      operationId: approveRoomListing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Room status updated to AVAILABLE
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /mod/rooms/{id}/reject:
+    put:
+      tags: [Room Moderation]
+      summary: Reject room listing with audit feedback
+      operationId: rejectRoomListing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectReasonRequest'
+      responses:
+        '200':
+          description: Room listing rejected
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # =========================================================================
+  # 6. AI SERVICES
+  # =========================================================================
+  /ai/predict-price:
+    post:
+      tags: [AI Services]
+      summary: Predict fair rental price using LightGBM Regression
+      operationId: predictPrice
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricePredictionRequest'
+      responses:
+        '200':
+          description: Real-time price inference from LightGBM model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricePredictionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /ai/chat:
+    post:
+      tags: [AI Services]
+      summary: Conversational Assistant for room amenities and queries
+      operationId: aiChatQuery
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIChatRequest'
+      responses:
+        '200':
+          description: AI response with extracted rental context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIChatResponse'
+
+  # =========================================================================
+  # 7. ESCROW BOOKINGS & PAYMENTS
+  # =========================================================================
+  /bookings:
+    post:
+      tags: [Escrow Bookings]
+      summary: Create an escrow deposit booking for 48 hours
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created, awaiting deposit payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Room is already reserved or rented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags: [Escrow Bookings]
+      summary: List user bookings (Tenant gets own bookings; Landlord gets incoming bookings)
+      operationId: listBookings
+      responses:
+        '200':
+          description: Bookings list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /bookings/{id}:
+    get:
+      tags: [Escrow Bookings]
+      summary: Get booking details and escrow countdown status
+      operationId: getBookingById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Detailed booking and escrow status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /bookings/{id}/confirm-checkin:
+    post:
+      tags: [Escrow Bookings]
+      summary: Confirm room check-in and release escrow deposit to landlord
+      operationId: confirmCheckIn
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Deposit released, booking completed, room marked as RENTED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /payments/vnpay/create-url:
+    post:
+      tags: [Payments]
+      summary: Generate VNPAY payment redirect URL for deposit
+      operationId: createVNPAYPaymentUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bookingId]
+              properties:
+                bookingId:
+                  type: integer
+                  format: int64
+                paymentMethod:
+                  $ref: '#/components/schemas/PaymentMethod'
+      responses:
+        '200':
+          description: Payment URL generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paymentUrl:
+                    type: string
+                    format: uri
+                  transactionRef:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /payments/vnpay/ipn:
+    get:
+      tags: [Payments]
+      summary: VNPAY Webhook IPN Callback (Server-to-Server)
+      operationId: vnpayIPN
+      security: []
+      parameters:
+        - name: vnp_TxnRef
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: vnp_Amount
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: vnp_ResponseCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: vnp_SecureHash
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: IPN processed, booking transitioned to ESCROW_HOLDING
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RspCode:
+                    type: string
+                    example: "00"
+                  Message:
+                    type: string
+                    example: "Confirm Success"
+
+  # =========================================================================
+  # 8. DISPUTES & RESOLUTION
+  # =========================================================================
+  /disputes:
+    post:
+      tags: [Disputes]
+      summary: Tenant files a dispute within 24h of appointment
+      operationId: fileDispute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileDisputeRequest'
+      responses:
+        '201':
+          description: Dispute opened, assigned to moderator
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisputeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Dispute already exists for this booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /mod/disputes:
+    get:
+      tags: [Disputes]
+      summary: List all active disputes (Moderator/Admin)
+      operationId: listDisputes
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DisputeStatus'
+      responses:
+        '200':
+          description: Active disputes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DisputeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /mod/disputes/{id}/resolve:
+    put:
+      tags: [Disputes]
+      summary: Adjudicate dispute and trigger automated refund or release
+      operationId: resolveDispute
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveDisputeRequest'
+      responses:
+        '200':
+          description: Dispute resolved, VNPAY refund executed if approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisputeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # =========================================================================
+  # 9. REVIEWS
+  # =========================================================================
+  /reviews:
+    post:
+      tags: [Reviews]
+      summary: Submit post-stay verified review (Requires COMPLETED booking)
+      operationId: createReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Verified review published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Tenant has not completed stay at this room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rooms/{id}/reviews:
+    get:
+      tags: [Reviews]
+      summary: List verified reviews for a specific room
+      operationId: getRoomReviews
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Reviews list with breakdown scores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewResponse'
+
+  /reviews/{id}/reply:
+    post:
+      tags: [Reviews]
+      summary: Landlord replies to a tenant review
+      operationId: replyToReview
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reply]
+              properties:
+                reply:
+                  type: string
+      responses:
+        '200':
+          description: Reply recorded
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # =========================================================================
+  # 10. CHAT
+  # =========================================================================
+  /chat/conversations:
+    get:
+      tags: [Chat]
+      summary: List user active conversation threads
+      operationId: getConversations
+      responses:
+        '200':
+          description: Conversations with last message and unread count
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConversationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /chat/conversations/{userId}/messages:
+    get:
+      tags: [Chat]
+      summary: Get message history with a specific peer
+      operationId: getMessageHistory
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: roomId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Message thread history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /chat/messages:
+    post:
+      tags: [Chat]
+      summary: Send a direct message (Fallback REST for WebSocket)
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: Message stored and broadcast via STOMP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # =========================================================================
+  # 11. ADMIN & ANALYTICS
+  # =========================================================================
+  /admin/dashboard/stats:
+    get:
+      tags: [Admin & Analytics]
+      summary: Get platform KPI analytics, escrow volume, and conversion rates
+      operationId: getAdminStats
+      responses:
+        '200':
+          description: Aggregated system statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users:
+    get:
+      tags: [Admin & Analytics]
+      summary: List all users with search and filtering
+      operationId: listUsers
+      parameters:
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserRole'
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{id}/status:
+    put:
+      tags: [Admin & Analytics]
+      summary: Enable or disable a user account
+      operationId: toggleUserStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isActive]
+              properties:
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: User status updated
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+# ===========================================================================
+# COMPONENTS (SCHEMAS & RESPONSES)
+# ===========================================================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter Bearer JWT token issued by /api/v1/auth/login.
+
+  responses:
+    BadRequest:
+      description: Invalid request payload or parameter format
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required or token invalid/expired
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient role permissions for this operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Requested entity does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ------------------ ENUMS ------------------
+    UserRole:
+      type: string
+      enum: [ADMIN, MODERATOR, LANDLORD, TENANT]
+
+    KYCStatus:
+      type: string
+      enum: [UNVERIFIED, PENDING_VERIFICATION, VERIFIED, REJECTED]
+
+    RoomType:
+      type: string
+      enum: [STUDIO, SINGLE_ROOM, SHARED_ROOM, APARTMENT, HOMESTAY]
+
+    RoomStatus:
+      type: string
+      enum: [PENDING_APPROVAL, AVAILABLE, RESERVED, RENTED, MAINTENANCE, REJECTED, FLAGGED_VIOLATION]
+
+    BookingStatus:
+      type: string
+      enum: [PENDING_PAYMENT, ESCROW_HOLDING, COMPLETED, DISPUTED, REFUNDED, CANCELLED]
+
+    PaymentMethod:
+      type: string
+      enum: [VNPAY_QR, VNPAY_ATM, VNPAY_CARD, MOMO]
+
+    PaymentStatus:
+      type: string
+      enum: [PENDING, SUCCESS, FAILED, REFUNDED]
+
+    DisputeStatus:
+      type: string
+      enum: [OPEN, INVESTIGATING, REFUND_APPROVED, REFUND_REJECTED, RESOLVED]
+
+    # ------------------ AUTH & USERS ------------------
+    RegisterRequest:
+      type: object
+      required: [email, password, fullName, phoneNumber, role]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        fullName:
+          type: string
+        phoneNumber:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          example: 1800
+        user:
+          $ref: '#/components/schemas/UserProfileResponse'
+
+    UserProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        fullName:
+          type: string
+        phoneNumber:
+          type: string
+        avatarUrl:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        kycStatus:
+          $ref: '#/components/schemas/KYCStatus'
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phoneNumber:
+          type: string
+        avatarUrl:
+          type: string
+
+    ChangePasswordRequest:
+      type: object
+      required: [oldPassword, newPassword]
+      properties:
+        oldPassword:
+          type: string
+          format: password
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+
+    # ------------------ KYC ------------------
+    SubmitKYCRequest:
+      type: object
+      required: [idCardNumber, idCardFrontUrl, idCardBackUrl, ownershipDocUrl]
+      properties:
+        idCardNumber:
+          type: string
+        idCardFrontUrl:
+          type: string
+        idCardBackUrl:
+          type: string
+        ownershipDocUrl:
+          type: string
+
+    KYCResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        idCardNumber:
+          type: string
+        idCardFrontUrl:
+          type: string
+        idCardBackUrl:
+          type: string
+        ownershipDocUrl:
+          type: string
+        rejectionReason:
+          type: string
+        reviewedBy:
+          type: integer
+          format: int64
+        reviewedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    KYCPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/KYCResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    RejectReasonRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    # ------------------ ROOMS & AMENITIES ------------------
+    RoomAmenitiesDto:
+      type: object
+      properties:
+        hasAirConditioner:
+          type: boolean
+        hasWaterHeater:
+          type: boolean
+        hasWashingMachine:
+          type: boolean
+        hasRefrigerator:
+          type: boolean
+        hasBalcony:
+          type: boolean
+        hasElevator:
+          type: boolean
+        hasMezzanine:
+          type: boolean
+        hasParking:
+          type: boolean
+        isFreeHours:
+          type: boolean
+        allowsPets:
+          type: boolean
+        isFurnished:
+          type: boolean
+
+    RoomImageDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        imageUrl:
+          type: string
+        isPrimary:
+          type: boolean
+        displayOrder:
+          type: integer
+
+    CreateRoomRequest:
+      type: object
+      required: [title, description, address, districtId, latitude, longitude, areaSqm, monthlyRent, depositRequired, electricityCostKwh, waterCostM3, amenities, imageUrls]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        districtId:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+        roomType:
+          $ref: '#/components/schemas/RoomType'
+        areaSqm:
+          type: number
+        maxOccupants:
+          type: integer
+          default: 2
+        monthlyRent:
+          type: number
+        depositRequired:
+          type: number
+        electricityCostKwh:
+          type: number
+        waterCostM3:
+          type: number
+        internetCostMonth:
+          type: number
+        amenities:
+          $ref: '#/components/schemas/RoomAmenitiesDto'
+        imageUrls:
+          type: array
+          items:
+            type: string
+
+    UpdateRoomRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        monthlyRent:
+          type: number
+        depositRequired:
+          type: number
+        amenities:
+          $ref: '#/components/schemas/RoomAmenitiesDto'
+
+    RoomSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        address:
+          type: string
+        districtName:
+          type: string
+        monthlyRent:
+          type: number
+        depositRequired:
+          type: number
+        areaSqm:
+          type: number
+        primaryImageUrl:
+          type: string
+        aiPredictedPrice:
+          type: number
+        status:
+          $ref: '#/components/schemas/RoomStatus'
+        averageRating:
+          type: number
+        reviewCount:
+          type: integer
+
+    RoomDetailResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        landlord:
+          $ref: '#/components/schemas/UserProfileResponse'
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        districtId:
+          type: integer
+        districtName:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        roomType:
+          $ref: '#/components/schemas/RoomType'
+        areaSqm:
+          type: number
+        maxOccupants:
+          type: integer
+        monthlyRent:
+          type: number
+        depositRequired:
+          type: number
+        electricityCostKwh:
+          type: number
+        waterCostM3:
+          type: number
+        internetCostMonth:
+          type: number
+        aiPredictedPrice:
+          type: number
+        aiPriceMin:
+          type: number
+        aiPriceMax:
+          type: number
+        status:
+          $ref: '#/components/schemas/RoomStatus'
+        viewCount:
+          type: integer
+        amenities:
+          $ref: '#/components/schemas/RoomAmenitiesDto'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoomImageDto'
+        createdAt:
+          type: string
+          format: date-time
+
+    RoomPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoomSummaryResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        currentPage:
+          type: integer
+
+    DistrictResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    LandmarkResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        districtId:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    # ------------------ AI SERVICES ------------------
+    PricePredictionRequest:
+      type: object
+      required: [districtId, areaSqm, roomType, amenities]
+      properties:
+        districtId:
+          type: integer
+        areaSqm:
+          type: number
+        roomType:
+          $ref: '#/components/schemas/RoomType'
+        maxOccupants:
+          type: integer
+        distanceToUniversityKm:
+          type: number
+        amenities:
+          $ref: '#/components/schemas/RoomAmenitiesDto'
+
+    PricePredictionResponse:
+      type: object
+      properties:
+        predictedPrice:
+          type: number
+          example: 3250000
+        priceMin:
+          type: number
+          example: 3000000
+        priceMax:
+          type: number
+          example: 3500000
+        confidenceScore:
+          type: number
+          example: 0.94
+        marketMedianDistrict:
+          type: number
+          example: 3300000
+
+    AIChatRequest:
+      type: object
+      required: [query]
+      properties:
+        roomId:
+          type: integer
+          format: int64
+        query:
+          type: string
+
+    AIChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+        suggestedActions:
+          type: array
+          items:
+            type: string
+
+    # ------------------ BOOKINGS & PAYMENTS ------------------
+    CreateBookingRequest:
+      type: object
+      required: [roomId, depositAmount, checkinAppointmentDate]
+      properties:
+        roomId:
+          type: integer
+          format: int64
+        depositAmount:
+          type: number
+          example: 500000
+        checkinAppointmentDate:
+          type: string
+          format: date-time
+
+    BookingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        bookingCode:
+          type: string
+        roomId:
+          type: integer
+          format: int64
+        roomTitle:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        landlordId:
+          type: integer
+          format: int64
+        depositAmount:
+          type: number
+        escrowHoldingDeadline:
+          type: string
+          format: date-time
+        checkinAppointmentDate:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        createdAt:
+          type: string
+          format: date-time
+
+    # ------------------ DISPUTES ------------------
+    FileDisputeRequest:
+      type: object
+      required: [bookingId, reason, description]
+      properties:
+        bookingId:
+          type: integer
+          format: int64
+        reason:
+          type: string
+        description:
+          type: string
+        evidenceUrls:
+          type: array
+          items:
+            type: string
+
+    DisputeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        bookingId:
+          type: integer
+          format: int64
+        complainantId:
+          type: integer
+          format: int64
+        reason:
+          type: string
+        description:
+          type: string
+        evidenceUrls:
+          type: array
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/DisputeStatus'
+        resolutionNotes:
+          type: string
+        resolvedBy:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+
+    ResolveDisputeRequest:
+      type: object
+      required: [status, resolutionNotes]
+      properties:
+        status:
+          $ref: '#/components/schemas/DisputeStatus'
+        resolutionNotes:
+          type: string
+
+    # ------------------ REVIEWS ------------------
+    CreateReviewRequest:
+      type: object
+      required: [bookingId, overallRating, ratingSecurity, ratingCleanliness, ratingUtilities, ratingLandlord, comment]
+      properties:
+        bookingId:
+          type: integer
+          format: int64
+        overallRating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        ratingSecurity:
+          type: integer
+          minimum: 1
+          maximum: 5
+        ratingCleanliness:
+          type: integer
+          minimum: 1
+          maximum: 5
+        ratingUtilities:
+          type: integer
+          minimum: 1
+          maximum: 5
+        ratingLandlord:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        photoUrls:
+          type: array
+          items:
+            type: string
+
+    ReviewResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        bookingId:
+          type: integer
+          format: int64
+        roomId:
+          type: integer
+          format: int64
+        tenantName:
+          type: string
+        tenantAvatarUrl:
+          type: string
+        overallRating:
+          type: integer
+        ratingSecurity:
+          type: integer
+        ratingCleanliness:
+          type: integer
+        ratingUtilities:
+          type: integer
+        ratingLandlord:
+          type: integer
+        comment:
+          type: string
+        photoUrls:
+          type: array
+          items:
+            type: string
+        landlordReply:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # ------------------ CHAT ------------------
+    ConversationResponse:
+      type: object
+      properties:
+        peerUser:
+          $ref: '#/components/schemas/UserProfileResponse'
+        roomId:
+          type: integer
+          format: int64
+        roomTitle:
+          type: string
+        lastMessage:
+          type: string
+        lastMessageAt:
+          type: string
+          format: date-time
+        unreadCount:
+          type: integer
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        senderId:
+          type: integer
+          format: int64
+        receiverId:
+          type: integer
+          format: int64
+        roomId:
+          type: integer
+          format: int64
+        content:
+          type: string
+        mediaUrl:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    SendMessageRequest:
+      type: object
+      required: [receiverId, content]
+      properties:
+        receiverId:
+          type: integer
+          format: int64
+        roomId:
+          type: integer
+          format: int64
+        content:
+          type: string
+        mediaUrl:
+          type: string
+
+    # ------------------ ADMIN ------------------
+    AdminStatsResponse:
+      type: object
+      properties:
+        totalEscrowVolume:
+          type: number
+        totalCommissionRevenue:
+          type: number
+        totalActiveRooms:
+          type: number
+        totalUsers:
+          type: number
+        pendingKYCCount:
+          type: integer
+        pendingRoomCount:
+          type: integer
+        activeDisputeCount:
+          type: integer
+
+    UserPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserProfileResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required: [code, message, timestamp]
+      properties:
+        code:
+          type: string
+          example: INVALID_CREDENTIALS
+        message:
+          type: string
+          example: Email hoặc mật khẩu không chính xác
+        details:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: string
+          format: date-time
+
+security:
+  - BearerAuth: []
