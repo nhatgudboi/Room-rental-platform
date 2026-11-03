@@ -1,5 +1,11 @@
 # Smart Room Rental Platform
 
+**Verified, AI-Powered Student Room Rental & Escrow Marketplace**
+
+*Two-tier CCCD eKYC verification · Real-time LightGBM AI price valuation · 48-hour VNPAY escrow deposit guarantee*
+
+[![Interactive two-column split map & room discovery](docs/images/SCR-02-search-split-map.png)](#23-visual-showcase--18-screen-uiux-prototype)
+
 Smart Room Rental Platform connects tenants, landlords, moderators, and administrators in a verified, AI-powered room rental marketplace. It eliminates deceptive rental listings through two-tier KYC and listing verification, provides real-time LightGBM AI rental price valuation, delivers personalized room recommendations, protects tenants with a 48-hour escrow deposit guarantee via VNPAY, and ensures verified post-stay reviews.
 
 ## 1. Requirements — INVEST, Use Cases, and Acceptance Criteria
@@ -291,7 +297,179 @@ The application architecture partitions navigation into public discovery and thr
 
 Detailed screen inventories, UI component breakdown, accessibility rules, and state specifications are maintained in [Information Architecture](docs/04-information-architecture.md).
 
-### 2.3 Core User Journeys
+### 2.3 Giao diện thực tế & Thư viện 18 màn hình (UI/UX Visual Showcase)
+
+> [!NOTE]
+> **Về thanh chuyển đổi vai trò (Role Switcher) trên thanh điều hướng giao diện:**
+> 
+> The top navigation bar includes an interactive role switcher pill: **`[Tenant | Landlord | Moderator | Admin]`**.
+> * **Purpose in the Current UI/UX Prototype Phase:** The entire frontend is currently operating with a comprehensive **Mock Data suite**. This segmented control is intentionally provided so that evaluators, reviewers, and stakeholders can **seamlessly switch between all four operational perspectives** within a single session, inspecting all 18 screens without the friction of repeatedly logging in and out across four distinct test accounts.
+> * **In the Production Deployment (Full-Flow Implementation):** This switcher will be **entirely removed**. The platform will strictly enforce standard authentication and authorization boundaries:
+>   * Each role will authenticate through isolated credentials and JWT session tokens.
+>   * Permissions are strictly enforced via multi-layer RBAC (Role-Based Access Control) at both the API Gateway and database levels: Tenants only access room discovery and deposit checkout; Landlords must pass chip-based CCCD identity verification before unlocking the property management portal; Moderators and Administrators access dedicated command consoles protected by cryptographic audit trails.
+
+---
+
+#### 1. Tenant Discovery & Booking Subsystem
+
+**SCR-01: Home Discovery & Student Rental Search Console**
+> Built with Traveloka hospitality aesthetics: A compact search ribbon allowing students to filter by university campus, commute radius, and monthly budget; quick district filter chips; and room cards showcasing verified landlord badges, LightGBM AI fair-price indicators, and instant CTAs.
+
+![SCR-01: Home Discovery & Search Console](docs/images/SCR-01-home-discovery.png)
+
+---
+
+**SCR-02: Interactive Two-Column Split Map (OpenStreetMap & Leaflet)**
+> High-fidelity OpenStreetMap integration with actual Hanoi street coordinates. Features interactive price pills (`3.2Tr`, `3.8Tr`, `2.6Tr`), campus landmarks (e.g., Hanoi University of Science and Technology), and bidirectional synchronization: clicking a pin highlights the corresponding listing card, and vice versa.
+
+![SCR-02: Interactive Split Map Console](docs/images/SCR-02-search-split-map.png)
+
+---
+
+**SCR-03: Room Detail View & Market Price Valuation Benchmark**
+> High-resolution photo gallery; itemized transparent living expense breakdown (sub-metered electricity, water, fiber internet); LightGBM AI market valuation gauge comparing listing price against localized neighborhood averages; and a sticky 48h escrow booking guarantee box.
+
+![SCR-03: Room Detail & AI Price Gauge](docs/images/SCR-03-room-detail-ai.png)
+
+---
+
+**SCR-04: 48-Hour Escrow Deposit Checkout via VNPAY**
+> A structured 3-step checkout flow: Schedule physical inspection appointment, review 500,000 VND escrow custody terms held securely via VNPAY, and agree to the 24-hour full refund guarantee policy in the event of listing fraud or physical discrepancies.
+
+![SCR-04: Escrow Deposit Checkout](docs/images/SCR-04-escrow-checkout.png)
+
+---
+
+**SCR-05: 24-Hour Dispute Filing & On-Site Evidence Upload**
+> Enables tenants to halt automatic escrow fund disbursement and file for a 100% deposit refund by selecting grievance categories (severe mold, broken AC, unauthorized rate hikes) and attaching photographic inspection proof.
+
+![SCR-05: 24-Hour Dispute Filing](docs/images/SCR-05-dispute-filing.png)
+
+---
+
+**SCR-06: Two-Stage Verified Post-Stay Community Review**
+> Restricted exclusively to verified tenants with finalized rental contracts. Collects objective ratings across 4 core dimensions: Security, Cleanliness, Utility Meter Transparency, and Landlord Support.
+
+![SCR-06: Verified Community Review](docs/images/SCR-06-verified-review.png)
+
+---
+
+#### 2. Landlord Property Management Subsystem
+
+**SCR-10: Rental Inventory Dashboard & Performance Metrics**
+> Features 4 FlowX-style StatTiles tracking total room count, vacant inventory, active 48h escrow reservations, and monthly gross revenue; complemented by an inventory management table with segmented status pills.
+
+![SCR-10: Rental Inventory Management](docs/images/SCR-10-landlord-room-management.png)
+
+---
+
+**SCR-11: Room Listing Creation & Market Price Advisor**
+> Structured property submission form capturing address, room area, individual utility tariffs, and bundled amenities; integrated with a market price reference tool to optimize occupancy rates.
+
+![SCR-11: Listing Creation & Pricing Advisor](docs/images/SCR-11-create-room-ai-valuation.png)
+
+---
+
+**SCR-12: 48-Hour Escrow Booking & Check-in Management**
+> Real-time countdown timer tracking the 48-hour inspection window for prospective tenants, verified tenant contact details, and a confirmation action to trigger automated escrow fund release upon move-in.
+
+![SCR-12: Landlord Escrow Booking Manager](docs/images/SCR-12-landlord-escrow-bookings.png)
+
+---
+
+**SCR-09: Landlord Identity Verification (Chip-Based CCCD eKYC)**
+> Formal identity verification pipeline requiring landlords to submit 12-digit national ID numbers, front/back photos of chip-based citizen identity cards, and property ownership deeds prior to publishing privileges.
+
+![SCR-09: Landlord KYC Verification](docs/images/SCR-09-landlord-kyc.png)
+
+---
+
+#### 3. Moderator Auditing & Dispute Adjudication Subsystem
+
+**SCR-13: Landlord eKYC Dossier Moderation Queue**
+> A dual-column audit console displaying pending landlord submissions alongside a high-resolution document viewer to inspect card chips, holographic seals, and match ownership records under a 4-hour SLA.
+
+![SCR-13: Landlord KYC Moderation Queue](docs/images/SCR-13-kyc-moderation-queue.png)
+
+---
+
+**SCR-14: Listing Inspection Queue & AI Price Discrepancy Auditing**
+> Automated discrepancy detection flagging listings priced abnormally against neighborhood medians, combined with anti-fraud photo inspection to prevent scraped or stock imagery.
+
+![SCR-14: Listing Moderation Queue](docs/images/SCR-14-room-moderation-ai-flag.png)
+
+---
+
+**SCR-15: Escrow Dispute Adjudication & Evidence Comparison**
+> Side-by-side evidence inspection console comparing original approved listing photos against real-world tenant incident evidence, equipped with one-click full tenant refund or landlord payout actions.
+
+![SCR-15: Dispute Adjudication Console](docs/images/SCR-15-dispute-adjudication.png)
+
+---
+
+#### 4. Platform Administration & Common Subsystems
+
+**SCR-17: Escrow Custody Dashboard & Platform Financial Analytics**
+> Executive financial dashboard displaying total funds held in VNPAY escrow custody, commission revenue, on-time disbursement compliance rates, and weekly cashflow circulation trends.
+
+![SCR-17: Executive Financial Dashboard](docs/images/SCR-17-admin-financial-dashboard.png)
+
+---
+
+**SCR-16: User Administration & Fraud Suspension Console**
+> Unified user registry across all 4 platform roles (Admin, Moderator, Landlord, Tenant) with instant fraudulent account suspension controls and violation audit logging.
+
+![SCR-16: User Administration Console](docs/images/SCR-16-admin-user-management.png)
+
+---
+
+**SCR-18: Real-Time In-App Messaging (Tenant-Landlord Chat)**
+> Low-latency direct communication channel facilitating appointment coordination, utility queries, and move-in support between verified parties.
+
+![SCR-18: Real-Time Messaging Stream](docs/images/SCR-18-in-app-chat.png)
+
+---
+
+**SCR-07: Role-Based Authentication & Registration Portal**
+> Unified login and onboarding interface featuring role selection tabs for Tenants and Landlords, backed by secure JWT credential validation.
+
+![SCR-07: Authentication & Onboarding Portal](docs/images/SCR-07-auth-portal.png)
+
+---
+
+**SCR-08: Tenant Account Profile & Escrow Booking History**
+> Tenant personal command center managing profile credentials, active 48-hour escrow booking countdowns, and saved room bookmarks.
+
+![SCR-08: Tenant Profile & Booking Manager](docs/images/SCR-08-tenant-profile-bookings.png)
+
+---
+
+### Comprehensive 18-Screen Prototype Matrix
+
+| ID | Screen Code | Screen Name & Primary Purpose | Role Boundary | Route Path | Direct Screenshot |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **01** | `SCR-01` | Home Discovery & Rental Search Console | Tenant (Public) | `/` | [View Screen](docs/images/SCR-01-home-discovery.png) |
+| **02** | `SCR-02` | Interactive Split Map & Multi-Criteria Filter | Tenant (Public) | `/rooms` | [View Screen](docs/images/SCR-02-search-split-map.png) |
+| **03** | `SCR-03` | Room Detail & Market Valuation Benchmark | Tenant (Public) | `/rooms/:id` | [View Screen](docs/images/SCR-03-room-detail-ai.png) |
+| **04** | `SCR-04` | 48-Hour Escrow Deposit Checkout (VNPAY) | Tenant | `/rooms/:id/booking` | [View Screen](docs/images/SCR-04-escrow-checkout.png) |
+| **05** | `SCR-05` | 24-Hour Dispute Filing & Evidence Upload | Tenant | `/bookings/:id/dispute` | [View Screen](docs/images/SCR-05-dispute-filing.png) |
+| **06** | `SCR-06` | Two-Stage Verified Post-Stay Review | Tenant | `/bookings/:id/review` | [View Screen](docs/images/SCR-06-verified-review.png) |
+| **07** | `SCR-07` | Role-Based Authentication & Registration | Common (Auth) | `/auth/login` | [View Screen](docs/images/SCR-07-auth-portal.png) |
+| **08** | `SCR-08` | Tenant Profile & Escrow Booking History | Tenant | `/profile` | [View Screen](docs/images/SCR-08-tenant-profile-bookings.png) |
+| **09** | `SCR-09` | Landlord Identity Verification (CCCD eKYC) | Landlord | `/landlord/kyc` | [View Screen](docs/images/SCR-09-landlord-kyc.png) |
+| **10** | `SCR-10` | Rental Inventory Dashboard & Performance | Landlord | `/landlord/rooms` | [View Screen](docs/images/SCR-10-landlord-room-management.png) |
+| **11** | `SCR-11` | Listing Creation & Market Price Advisor | Landlord | `/landlord/rooms/new` | [View Screen](docs/images/SCR-11-create-room-ai-valuation.png) |
+| **12** | `SCR-12` | 48-Hour Escrow Booking & Check-in Manager | Landlord | `/landlord/bookings` | [View Screen](docs/images/SCR-12-landlord-escrow-bookings.png) |
+| **13** | `SCR-13` | Landlord eKYC Dossier Moderation Queue | Moderator | `/mod/kyc` | [View Screen](docs/images/SCR-13-kyc-moderation-queue.png) |
+| **14** | `SCR-14` | Listing Auditing & Price Discrepancy Queue | Moderator | `/mod/rooms` | [View Screen](docs/images/SCR-14-room-moderation-ai-flag.png) |
+| **15** | `SCR-15` | Dispute Adjudication & Evidence Comparison | Moderator | `/mod/disputes` | [View Screen](docs/images/SCR-15-dispute-adjudication.png) |
+| **16** | `SCR-16` | User Administration & Fraud Suspension | Administrator | `/admin/users` | [View Screen](docs/images/SCR-16-admin-user-management.png) |
+| **17** | `SCR-17` | Escrow Custody Dashboard & Financial Analytics | Administrator | `/admin/dashboard` | [View Screen](docs/images/SCR-17-admin-financial-dashboard.png) |
+| **18** | `SCR-18` | Real-Time In-App Messaging (WebSocket) | Common (Chat) | `/chat` | [View Screen](docs/images/SCR-18-in-app-chat.png) |
+
+---
+
+### 2.4 Core User Journeys
 
 The platform UX revolves around three critical operational journeys:
 1. **Tenant Journey:** Discover rooms via map & filters → Evaluate AI price gauge → Place 48h escrow deposit via VNPAY → Check-in or file dispute.
