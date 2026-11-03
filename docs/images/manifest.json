@@ -1,0 +1,118 @@
+{
+  "generatedAt": "2026-11-03T08:03:35.198Z",
+  "totalScreens": 18,
+  "outputFolders": [
+    "docs/screenshots",
+    "images"
+  ],
+  "screens": [
+    {
+      "route": "/",
+      "name": "SCR-01-home-discovery",
+      "title": "SCR-01: Trang chủ & Tìm kiếm phòng",
+      "file": "SCR-01-home-discovery.png"
+    },
+    {
+      "route": "/rooms",
+      "name": "SCR-02-search-split-map",
+      "title": "SCR-02: Bản đồ số thật OpenStreetMap & Lọc phòng",
+      "file": "SCR-02-search-split-map.png"
+    },
+    {
+      "route": "/rooms/1",
+      "name": "SCR-03-room-detail-ai",
+      "title": "SCR-03: Chi tiết phòng & Thước đo giá thị trường",
+      "file": "SCR-03-room-detail-ai.png"
+    },
+    {
+      "route": "/rooms/1/booking",
+      "name": "SCR-04-escrow-checkout",
+      "title": "SCR-04: Đặt cọc ký quỹ Escrow VNPAY",
+      "file": "SCR-04-escrow-checkout.png"
+    },
+    {
+      "route": "/bookings/BK-202611-0089/dispute",
+      "name": "SCR-05-dispute-filing",
+      "title": "SCR-05: Khiếu nại cọc 24h & Upload bằng chứng",
+      "file": "SCR-05-dispute-filing.png"
+    },
+    {
+      "route": "/bookings/BK-202610-0042/review",
+      "name": "SCR-06-verified-review",
+      "title": "SCR-06: Đánh giá sau lưu trú (Verified Review)",
+      "file": "SCR-06-verified-review.png"
+    },
+    {
+      "route": "/auth/login",
+      "name": "SCR-07-auth-portal",
+      "title": "SCR-07: Đăng nhập & Đăng ký phân quyền",
+      "file": "SCR-07-auth-portal.png"
+    },
+    {
+      "route": "/profile",
+      "name": "SCR-08-tenant-profile-bookings",
+      "title": "SCR-08: Hồ sơ cá nhân & Đơn cọc của tôi",
+      "file": "SCR-08-tenant-profile-bookings.png"
+    },
+    {
+      "route": "/landlord/kyc",
+      "name": "SCR-09-landlord-kyc",
+      "title": "SCR-09: Nộp hồ sơ xác minh CCCD chủ trọ",
+      "file": "SCR-09-landlord-kyc.png"
+    },
+    {
+      "route": "/landlord/rooms",
+      "name": "SCR-10-landlord-room-management",
+      "title": "SCR-10: Quản lý danh mục phòng cho thuê",
+      "file": "SCR-10-landlord-room-management.png"
+    },
+    {
+      "route": "/landlord/rooms/new",
+      "name": "SCR-11-create-room-ai-valuation",
+      "title": "SCR-11: Tạo tin mới & Tham khảo giá thị trường",
+      "file": "SCR-11-create-room-ai-valuation.png"
+    },
+    {
+      "route": "/landlord/bookings",
+      "name": "SCR-12-landlord-escrow-bookings",
+      "title": "SCR-12: Quản lý đơn khách cọc 48h (Chủ trọ)",
+      "file": "SCR-12-landlord-escrow-bookings.png"
+    },
+    {
+      "route": "/mod/kyc",
+      "name": "SCR-13-kyc-moderation-queue",
+      "title": "SCR-13: Hàng đợi duyệt hồ sơ CCCD chủ trọ",
+      "file": "SCR-13-kyc-moderation-queue.png"
+    },
+    {
+      "route": "/mod/rooms",
+      "name": "SCR-14-room-moderation-ai-flag",
+      "title": "SCR-14: Hàng đợi duyệt tin & Đối soát giá",
+      "file": "SCR-14-room-moderation-ai-flag.png"
+    },
+    {
+      "route": "/mod/disputes",
+      "name": "SCR-15-dispute-adjudication",
+      "title": "SCR-15: Phân xử khiếu nại cọc Escrow",
+      "file": "SCR-15-dispute-adjudication.png"
+    },
+    {
+      "route": "/admin/users",
+      "name": "SCR-16-admin-user-management",
+      "title": "SCR-16: Quản trị tài khoản & Khóa người dùng",
+      "file": "SCR-16-admin-user-management.png"
+    },
+    {
+      "route": "/admin/dashboard",
+      "name": "SCR-17-admin-financial-dashboard",
+      "title": "SCR-17: Dashboard lưu ký Escrow & Doanh thu sàn",
+      "file": "SCR-17-admin-financial-dashboard.png"
+    },
+    {
+      "route": "/chat",
+      "name": "SCR-18-in-app-chat",
+      "title": "SCR-18: Cửa sổ Chat trực tiếp Khách - Chủ",
+      "file": "SCR-18-in-app-chat.png"
+    }
+  ]
+}

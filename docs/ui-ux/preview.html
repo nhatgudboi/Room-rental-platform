@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Rental Platform - Showcase 18 Màn Hình Trực Quan (UI/UX)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-600: #047857;
+      --primary-700: #065f46;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .screen-container { display: none; }
+    .screen-container.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .map-mockup {
+      background: radial-gradient(circle at 50% 50%, #e0f2fe 0%, #cbd5e1 100%);
+      background-image: 
+        linear-gradient(rgba(148, 163, 184, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.2) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- TOP BAR: Persona Switcher & Global Header -->
+  <header class="bg-emerald-900 text-white px-6 py-3.5 shadow-md sticky top-0 z-50 flex items-center justify-between border-b border-emerald-800">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-xl shadow">
+        SR
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight flex items-center gap-2">
+          SMART RENTAL PLATFORM
+          <span class="bg-emerald-700 text-emerald-200 text-xs px-2 py-0.5 rounded-full font-medium">UI Prototype v1.0</span>
+        </div>
+        <div class="text-xs text-emerald-300">Sàn cho thuê phòng trọ tích hợp AI LightGBM & Ký quỹ Escrow VNPAY</div>
+      </div>
+    </div>
+
+    <!-- Screen Navigator & Persona Filter -->
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center bg-emerald-950/70 p-1 rounded-lg border border-emerald-700/60 text-xs">
+        <span class="text-emerald-400 font-semibold px-2">VAI TRÒ:</span>
+        <button onclick="filterRole('all')" class="role-btn px-2.5 py-1 rounded-md font-medium text-emerald-200 hover:text-white bg-emerald-800">Tất cả (18)</button>
+        <button onclick="filterRole('tenant')" class="role-btn px-2.5 py-1 rounded-md font-medium text-emerald-200 hover:text-white">Người thuê</button>
+        <button onclick="filterRole('landlord')" class="role-btn px-2.5 py-1 rounded-md font-medium text-emerald-200 hover:text-white">Chủ trọ</button>
+        <button onclick="filterRole('mod')" class="role-btn px-2.5 py-1 rounded-md font-medium text-emerald-200 hover:text-white">Kiểm duyệt</button>
+        <button onclick="filterRole('admin')" class="role-btn px-2.5 py-1 rounded-md font-medium text-emerald-200 hover:text-white">Admin</button>
+      </div>
+
+      <select id="screenSelect" onchange="showScreen(this.value)" class="bg-white text-slate-900 font-semibold text-sm px-3.5 py-2 rounded-lg border border-slate-300 shadow-sm cursor-pointer outline-none hover:bg-slate-50">
+        <optgroup label="Khách thuê & Công khai">
+          <option value="scr-01">SCR-01: Trang chủ & Tìm kiếm thông minh</option>
+          <option value="scr-02">SCR-02: Bản đồ số 2 cột & Lọc phòng</option>
+          <option value="scr-03">SCR-03: Chi tiết phòng & Thước đo giá AI</option>
+          <option value="scr-04">SCR-04: Đặt cọc ký quỹ Escrow (VNPAY)</option>
+          <option value="scr-05">SCR-05: Khiếu nại cọc 24h & Upload bằng chứng</option>
+          <option value="scr-06">SCR-06: Đánh giá sau lưu trú (Verified)</option>
+        </optgroup>
+        <optgroup label="Xác thực & Hồ sơ">
+          <option value="scr-07">SCR-07: Đăng nhập & Đăng ký phân quyền</option>
+          <option value="scr-08">SCR-08: Hồ sơ cá nhân & Quản lý đơn cọc</option>
+        </optgroup>
+        <optgroup label="Dành cho Chủ trọ">
+          <option value="scr-09">SCR-09: Nộp hồ sơ xác minh KYC chủ trọ</option>
+          <option value="scr-10">SCR-10: Quản lý danh mục phòng cho thuê</option>
+          <option value="scr-11">SCR-11: Tạo tin mới & Dự đoán giá AI</option>
+          <option value="scr-12">SCR-12: Quản lý đơn khách cọc 48h</option>
+        </optgroup>
+        <optgroup label="Kiểm duyệt & Quản trị">
+          <option value="scr-13">SCR-13: Hàng đợi duyệt hồ sơ KYC chủ trọ</option>
+          <option value="scr-14">SCR-14: Hàng đợi duyệt tin & Cờ lệch giá AI</option>
+          <option value="scr-15">SCR-15: Phân xử khiếu nại cọc Escrow</option>
+          <option value="scr-16">SCR-16: Quản trị tài khoản & Khóa vi phạm</option>
+          <option value="scr-17">SCR-17: Dashboard doanh thu & Thống kê sàn</option>
+        </optgroup>
+        <optgroup label="Giao tiếp trực tiếp">
+          <option value="scr-18">SCR-18: Cửa sổ Chat trực tiếp Khách - Chủ</option>
+        </optgroup>
+      </select>
+    </div>
+  </header>
+
+  <!-- QUICK NAVIGATION PILLS -->
+  <div class="bg-white border-b border-slate-200 px-6 py-2 overflow-x-auto whitespace-nowrap flex gap-2 text-xs font-semibold shadow-sm">
+    <button onclick="showScreen('scr-01')" class="pill-btn px-3 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm" data-screen="scr-01">SCR-01 Trang chủ</button>
+    <button onclick="showScreen('scr-02')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-02">SCR-02 Bản đồ 2 cột</button>
+    <button onclick="showScreen('scr-03')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-03">SCR-03 Chi tiết & AI</button>
+    <button onclick="showScreen('scr-04')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-04">SCR-04 Cọc Escrow 48h</button>
+    <button onclick="showScreen('scr-05')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-05">SCR-05 Khiếu nại cọc</button>
+    <button onclick="showScreen('scr-06')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-06">SCR-06 Đánh giá 4 sao</button>
+    <button onclick="showScreen('scr-07')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-07">SCR-07 Đăng nhập/Ký</button>
+    <button onclick="showScreen('scr-08')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-08">SCR-08 Đơn cọc của tôi</button>
+    <button onclick="showScreen('scr-09')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-09">SCR-09 KYC Chủ trọ</button>
+    <button onclick="showScreen('scr-10')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-10">SCR-10 Quản lý phòng</button>
+    <button onclick="showScreen('scr-11')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-11">SCR-11 Tạo tin & Giá AI</button>
+    <button onclick="showScreen('scr-12')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-12">SCR-12 Đơn cọc 48h (Chủ)</button>
+    <button onclick="showScreen('scr-13')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-13">SCR-13 Duyệt KYC</button>
+    <button onclick="showScreen('scr-14')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-14">SCR-14 Duyệt tin & Cờ AI</button>
+    <button onclick="showScreen('scr-15')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-15">SCR-15 Phân xử tranh chấp</button>
+    <button onclick="showScreen('scr-16')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-16">SCR-16 Quản trị User</button>
+    <button onclick="showScreen('scr-17')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-17">SCR-17 Admin Dashboard</button>
+    <button onclick="showScreen('scr-18')" class="pill-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200" data-screen="scr-18">SCR-18 Chat Khách - Chủ</button>
+  </div>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- ==================== SCR-01: TRANG CHỦ ==================== -->
+    <div id="scr-01" class="screen-container active space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-01</span>
+          <h1 class="text-xl font-bold text-slate-900">Trang Chủ & Tìm Kiếm Thông Minh (Hero Discovery)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: / (Public)</span>
+      </div>
+
+      <!-- Hero Banner -->
+      <div class="rounded-2xl p-8 text-white relative overflow-hidden shadow-xl" style="background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%);">
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 bg-emerald-800/80 border border-emerald-600/50 text-emerald-200 text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">
+            <i class="fa-solid fa-bolt text-amber-400"></i> BẢO CHỨNG BỞI AI LIGHTGBM & VNPAY ESCROW
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
+            Tìm Phòng Trọ Xác Thực 100% · Định Giá Chuẩn AI · An Toàn Cọc 48H
+          </h2>
+          <p class="text-emerald-100 text-base mb-6 leading-relaxed">
+            Xóa bỏ hoàn toàn nỗi sợ phòng ảo, chủ trọ bùng cọc. Mỗi phòng trọ đều được kiểm duyệt giấy tờ chủ nhà và bảo vệ tiền cọc 48 giờ.
+          </p>
+
+          <!-- Search Widget -->
+          <div class="bg-white p-3 rounded-xl shadow-2xl text-slate-800 grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-2 md:pb-0 md:pr-3">
+              <label class="block text-[11px] font-bold text-slate-500 uppercase">Trường Đại học</label>
+              <select class="w-full font-semibold text-sm text-slate-800 outline-none bg-transparent pt-1">
+                <option>Đại học Bách Khoa Hà Nội</option>
+                <option>Đại học Quốc Gia Cầu Giấy</option>
+                <option>Đại học Kinh Tế Quốc Dân</option>
+                <option>Học viện Ngân Hàng</option>
+              </select>
+            </div>
+            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-2 md:pb-0 md:pr-3">
+              <label class="block text-[11px] font-bold text-slate-500 uppercase">Bán kính quanh trường</label>
+              <select class="w-full font-semibold text-sm text-slate-800 outline-none bg-transparent pt-1">
+                <option>Bán kính < 1.5 km</option>
+                <option>Bán kính < 3.0 km</option>
+                <option>Bán kính < 5.0 km</option>
+              </select>
+            </div>
+            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-2 md:pb-0 md:pr-3">
+              <label class="block text-[11px] font-bold text-slate-500 uppercase">Khoảng giá thuê</label>
+              <select class="w-full font-semibold text-sm text-slate-800 outline-none bg-transparent pt-1">
+                <option>2.5Tr – 4.0Tr / tháng</option>
+                <option>Dưới 2.5Tr / tháng</option>
+                <option>Trên 4.0Tr / tháng</option>
+              </select>
+            </div>
+            <div>
+              <button onclick="showScreen('scr-02')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-magnifying-glass"></i> Tìm Phòng Ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Price Highlight Widget -->
+      <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm font-bold">AI</span>
+            <div>
+              <div class="font-bold text-slate-900 text-sm">Thước đo định giá thị trường AI LightGBM</div>
+              <div class="text-xs text-slate-500">Dựa trên 15,000+ dữ liệu phòng thật tại Hà Nội & vị trí GPS</div>
+            </div>
+          </div>
+          <span class="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">Độ tin cậy: 94.2%</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mt-3 pt-3 border-t border-emerald-200">
+          <div class="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+            <div class="text-xs text-slate-500">Giá thị trường dự báo</div>
+            <div class="text-lg font-black text-emerald-700">3,250,000 đ/th</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+            <div class="text-xs text-slate-500">Khoảng giá an toàn</div>
+            <div class="text-lg font-black text-slate-800">3.0M – 3.5M đ</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+            <div class="text-xs text-slate-500">Cơ chế cảnh báo lệch giá</div>
+            <div class="text-xs font-semibold text-emerald-800 mt-1">Gắn cờ cảnh báo nếu lệch &gt; 35%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommended Rooms Grid -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Gợi Ý Phòng Trọ Xác Thực (Gần Bách Khoa / Cầu Giấy)</h3>
+            <p class="text-xs text-slate-500">100% đã xác minh CCCD chủ trọ & được bảo vệ cọc Escrow 48h</p>
+          </div>
+          <button onclick="showScreen('scr-02')" class="text-sm font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1">
+            Xem tất cả 24 phòng <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+            <div class="relative h-48 bg-slate-200 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&auto=format&fit=crop&q=80" alt="Room 1" class="w-full h-full object-cover">
+              <span class="absolute top-3 left-3 bg-emerald-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow">
+                <i class="fa-solid fa-shield-halved"></i> KYC Đã Duyệt
+              </span>
+              <span class="absolute top-3 right-3 bg-amber-500 text-slate-900 text-[11px] font-extrabold px-2 py-0.5 rounded shadow flex items-center gap-1">
+                <i class="fa-solid fa-bolt"></i> Giá chuẩn AI
+              </span>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                <span><i class="fa-solid fa-location-dot text-emerald-600"></i> Ngõ 165 Cầu Giấy</span>
+                <span class="font-semibold text-emerald-700">Cách ĐH Sư Phạm 650m</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-2 line-clamp-1">Phòng Studio Khép Kín Ban Công Thoáng</h4>
+              <div class="flex items-center gap-3 text-xs text-slate-600 mb-3">
+                <span><i class="fa-solid fa-ruler-combined"></i> 28 m²</span>
+                <span><i class="fa-solid fa-user-group"></i> Tối đa 2 người</span>
+                <span><i class="fa-solid fa-snowflake"></i> Đầy đủ đồ</span>
+              </div>
+              <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                <div>
+                  <span class="text-lg font-black text-emerald-700">3,200,000 đ</span>
+                  <span class="text-xs text-slate-500">/tháng</span>
+                </div>
+                <button onclick="showScreen('scr-03')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
+                  Xem Chi Tiết
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+            <div class="relative h-48 bg-slate-200 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&auto=format&fit=crop&q=80" alt="Room 2" class="w-full h-full object-cover">
+              <span class="absolute top-3 left-3 bg-emerald-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow">
+                <i class="fa-solid fa-shield-halved"></i> KYC Đã Duyệt
+              </span>
+              <span class="absolute top-3 right-3 bg-amber-500 text-slate-900 text-[11px] font-extrabold px-2 py-0.5 rounded shadow flex items-center gap-1">
+                <i class="fa-solid fa-bolt"></i> Giá chuẩn AI
+              </span>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                <span><i class="fa-solid fa-location-dot text-emerald-600"></i> Ngõ 33 Lê Thanh Nghị</span>
+                <span class="font-semibold text-emerald-700">Cách ĐH Bách Khoa 400m</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-2 line-clamp-1">Chung Cư Mini Full Đồ Thang Máy</h4>
+              <div class="flex items-center gap-3 text-xs text-slate-600 mb-3">
+                <span><i class="fa-solid fa-ruler-combined"></i> 32 m²</span>
+                <span><i class="fa-solid fa-elevator"></i> Thang máy</span>
+                <span><i class="fa-solid fa-shield"></i> Khóa vân tay</span>
+              </div>
+              <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                <div>
+                  <span class="text-lg font-black text-emerald-700">3,800,000 đ</span>
+                  <span class="text-xs text-slate-500">/tháng</span>
+                </div>
+                <button onclick="showScreen('scr-03')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
+                  Xem Chi Tiết
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+            <div class="relative h-48 bg-slate-200 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&auto=format&fit=crop&q=80" alt="Room 3" class="w-full h-full object-cover">
+              <span class="absolute top-3 left-3 bg-emerald-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow">
+                <i class="fa-solid fa-shield-halved"></i> KYC Đã Duyệt
+              </span>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                <span><i class="fa-solid fa-location-dot text-emerald-600"></i> Số 45 Chùa Bộc, Đống Đa</span>
+                <span class="font-semibold text-emerald-700">Cách HV Ngân Hàng 300m</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mb-2 line-clamp-1">Phòng Trọ Giá Rẻ Gác Xép Tự Do</h4>
+              <div class="flex items-center gap-3 text-xs text-slate-600 mb-3">
+                <span><i class="fa-solid fa-ruler-combined"></i> 20 m²</span>
+                <span><i class="fa-solid fa-stairs"></i> Có gác xép</span>
+                <span><i class="fa-solid fa-clock"></i> Giờ tự do</span>
+              </div>
+              <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                <div>
+                  <span class="text-lg font-black text-emerald-700">2,400,000 đ</span>
+                  <span class="text-xs text-slate-500">/tháng</span>
+                </div>
+                <button onclick="showScreen('scr-03')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
+                  Xem Chi Tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-02: BẢN ĐỒ 2 CỘT ==================== -->
+    <div id="scr-02" class="screen-container space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-02</span>
+          <h1 class="text-xl font-bold text-slate-900">Tìm Kiếm Đa Tiêu Chí & Bản Đồ Số Tương Tác (Search & Split Map)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /rooms</span>
+      </div>
+
+      <!-- Two-column split layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px]">
+        <!-- Left: Filters & Room List -->
+        <div class="lg:col-span-6 flex flex-col h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 overflow-y-auto">
+          <!-- Filter bar -->
+          <div class="flex flex-wrap gap-2 pb-3 mb-3 border-b border-slate-100 text-xs font-medium">
+            <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-bold">Quanh: ĐH Bách Khoa</span>
+            <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">Giá: 2.0M - 4.0M</span>
+            <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">Có điều hòa</span>
+            <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">Khép kín</span>
+            <span class="text-slate-400 self-center ml-auto">Tìm thấy: <strong class="text-slate-800">24 phòng</strong></span>
+          </div>
+
+          <!-- Room items -->
+          <div class="space-y-3 flex-1 overflow-y-auto pr-1">
+            <div class="flex gap-3 p-3 rounded-lg border border-emerald-500 bg-emerald-50/40 hover:bg-emerald-50 transition cursor-pointer">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300" class="w-32 h-24 object-cover rounded-md flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-emerald-700"><i class="fa-solid fa-location-dot"></i> Ngõ 33 Lê Thanh Nghị</span>
+                  <span class="text-xs font-black text-amber-500">⭐ 4.9 (18)</span>
+                </div>
+                <h5 class="font-bold text-slate-900 text-sm truncate">Chung Cư Mini Full Đồ Ban Công ĐHBK</h5>
+                <p class="text-xs text-slate-500 mt-0.5">28 m² · Điều hòa · Nóng lạnh · Giờ tự do</p>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-base font-black text-emerald-700">3,200,000 đ<span class="text-xs font-normal text-slate-500">/th</span></span>
+                  <button onclick="showScreen('scr-03')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-2.5 py-1 rounded font-semibold">Xem</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition cursor-pointer">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=300" class="w-32 h-24 object-cover rounded-md flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-500"><i class="fa-solid fa-location-dot"></i> Tạ Quang Bửu</span>
+                  <span class="text-xs font-black text-amber-500">⭐ 4.8 (24)</span>
+                </div>
+                <h5 class="font-bold text-slate-900 text-sm truncate">Phòng Studio Gần Cổng Parabol Bách Khoa</h5>
+                <p class="text-xs text-slate-500 mt-0.5">32 m² · Thang máy · Ban công phơi đồ riêng</p>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-base font-black text-emerald-700">3,800,000 đ<span class="text-xs font-normal text-slate-500">/th</span></span>
+                  <button onclick="showScreen('scr-03')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs px-2.5 py-1 rounded font-semibold">Xem</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition cursor-pointer">
+              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300" class="w-32 h-24 object-cover rounded-md flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-500"><i class="fa-solid fa-location-dot"></i> Đại La, Hai Bà Trưng</span>
+                  <span class="text-xs font-black text-amber-500">⭐ 4.7 (9)</span>
+                </div>
+                <h5 class="font-bold text-slate-900 text-sm truncate">Phòng Trọ Khép Kín Gác Xép Sinh Viên</h5>
+                <p class="text-xs text-slate-500 mt-0.5">22 m² · Nấu ăn trong phòng · Không chung chủ</p>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-base font-black text-emerald-700">2,600,000 đ<span class="text-xs font-normal text-slate-500">/th</span></span>
+                  <button onclick="showScreen('scr-03')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs px-2.5 py-1 rounded font-semibold">Xem</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Map Mockup -->
+        <div class="lg:col-span-6 h-full rounded-xl overflow-hidden border border-slate-200 shadow-sm relative map-mockup flex flex-col justify-between p-4">
+          <!-- Map Overlay Controls -->
+          <div class="flex justify-between items-start z-10">
+            <div class="bg-white/95 backdrop-blur px-3 py-1.5 rounded-lg shadow border border-slate-200 text-xs font-bold text-slate-700">
+              <i class="fa-solid fa-location-crosshairs text-emerald-600 mr-1"></i> Đang hiển thị: Bán kính 2km quanh ĐH Bách Khoa
+            </div>
+            <div class="flex flex-col gap-1 bg-white rounded-lg shadow border border-slate-200 p-1 text-xs">
+              <button class="w-7 h-7 flex items-center justify-center font-bold hover:bg-slate-100 rounded">+</button>
+              <button class="w-7 h-7 flex items-center justify-center font-bold hover:bg-slate-100 rounded">-</button>
+            </div>
+          </div>
+
+          <!-- Interactive Pins on Map -->
+          <div class="relative w-full h-full my-auto flex items-center justify-center">
+            <!-- Center Landmark Pin -->
+            <div class="absolute flex flex-col items-center">
+              <div class="bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-lg border-2 border-white flex items-center gap-1 animate-pulse">
+                🎓 ĐH BÁCH KHOA HN
+              </div>
+              <div class="w-1 h-3 bg-red-600"></div>
+            </div>
+
+            <!-- Pin 1: Active 3.2M -->
+            <div style="top: 25%; left: 35%;" class="absolute flex flex-col items-center cursor-pointer">
+              <div class="bg-emerald-700 text-white text-xs font-black px-2.5 py-1 rounded-full shadow-lg border-2 border-white flex items-center gap-1 scale-110">
+                3.2Tr ⭐
+              </div>
+              <div class="w-0.5 h-2 bg-emerald-700"></div>
+            </div>
+
+            <!-- Pin 2: 3.8M -->
+            <div style="top: 30%; right: 28%;" class="absolute flex flex-col items-center cursor-pointer">
+              <div class="bg-slate-800 hover:bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow border border-white">
+                3.8Tr
+              </div>
+            </div>
+
+            <!-- Pin 3: 2.6M -->
+            <div style="bottom: 30%; left: 22%;" class="absolute flex flex-col items-center cursor-pointer">
+              <div class="bg-slate-800 hover:bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow border border-white">
+                2.6Tr
+              </div>
+            </div>
+
+            <!-- Pin 4: 2.9M -->
+            <div style="bottom: 22%; right: 35%;" class="absolute flex flex-col items-center cursor-pointer">
+              <div class="bg-slate-800 hover:bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow border border-white">
+                2.9Tr
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Card Preview Floating on Map -->
+          <div class="z-10 bg-white p-3 rounded-xl shadow-xl border border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=150" class="w-14 h-14 rounded-lg object-cover">
+              <div>
+                <div class="text-xs font-bold text-slate-800">Phòng ngõ 33 Lê Thanh Nghị (28m²)</div>
+                <div class="text-xs text-emerald-700 font-extrabold">3,200,000 đ/th · Giá chuẩn AI LightGBM</div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="showScreen('scr-03')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg">Xem chi tiết</button>
+              <button onclick="showScreen('scr-04')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg">Đặt cọc 500k</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-03: CHI TIẾT PHÒNG ==================== -->
+    <div id="scr-03" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-03</span>
+          <h1 class="text-xl font-bold text-slate-900">Chi Tiết Phòng Trọ & Thước Đo Định Giá AI (Room Detail)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /rooms/:id</span>
+      </div>
+
+      <!-- Main Room Detail Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 8 Cols: Images & Info -->
+        <div class="lg:col-span-8 space-y-6">
+          <!-- Gallery -->
+          <div class="grid grid-cols-3 gap-2 h-80 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+            <div class="col-span-2 h-full">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" class="w-full h-full object-cover">
+            </div>
+            <div class="grid grid-rows-2 gap-2 h-full">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500" class="w-full h-full object-cover">
+              <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500" class="w-full h-full object-cover">
+            </div>
+          </div>
+
+          <!-- Room Title & Badges -->
+          <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2.5 py-0.5 rounded">
+                <i class="fa-solid fa-shield-halved"></i> CHỦ TRỌ ĐÃ XÁC MINH CCCD
+              </span>
+              <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">
+                <i class="fa-solid fa-camera"></i> ẢNH XÁC THỰC THỰC TẾ
+              </span>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Phòng Studio Khép Kín Ban Công Thoáng Mát</h2>
+            <div class="text-sm text-slate-500 mb-4 flex items-center gap-3">
+              <span><i class="fa-solid fa-location-dot text-emerald-600"></i> Ngõ 165 Cầu Giấy, Hà Nội</span>
+              <span>·</span>
+              <span>Cách ĐH Sư Phạm 650m · Cách ĐH Quốc Gia 800m</span>
+            </div>
+
+            <!-- Transparent Utility Costs -->
+            <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 mb-6">
+              <h4 class="font-bold text-slate-800 text-sm mb-3"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Bảng Kê Chi Phí Sinh Hoạt Minh Bạch (Cam Kết Không Tăng Bậy)</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div>
+                  <span class="text-slate-500 block">Điện sinh hoạt:</span>
+                  <span class="font-bold text-slate-800 text-sm">3,500 đ / kWh</span>
+                  <span class="text-[10px] text-emerald-600 block">Công tơ riêng</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Nước máy:</span>
+                  <span class="font-bold text-slate-800 text-sm">25,000 đ / m³</span>
+                  <span class="text-[10px] text-emerald-600 block">Đồng hồ riêng</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Internet Wi-Fi:</span>
+                  <span class="font-bold text-slate-800 text-sm">80,000 đ / tháng</span>
+                  <span class="text-[10px] text-slate-500 block">Cáp quang tốc độ cao</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Dịch vụ & Vệ sinh:</span>
+                  <span class="font-bold text-slate-800 text-sm">50,000 đ / người</span>
+                  <span class="text-[10px] text-slate-500 block">Thang máy, rác, camera</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Price Valuation Component -->
+            <div class="border border-emerald-300 bg-emerald-50/50 rounded-xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">AI</div>
+                  <div>
+                    <h5 class="font-bold text-slate-900 text-sm">Định Giá Thị Trường Bởi AI LightGBM</h5>
+                    <p class="text-xs text-slate-500">Mô hình AI huấn luyện trên 15,000 dữ liệu phòng thực tế</p>
+                  </div>
+                </div>
+                <span class="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded">MỨC GIÁ HỢP LÝ ✅</span>
+              </div>
+
+              <!-- Price Bar Gauge -->
+              <div class="mt-4">
+                <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                  <span>Khoảng thấp: 3.0M</span>
+                  <span class="text-emerald-700 font-extrabold">Giá AI gợi ý: 3,250,000 đ</span>
+                  <span>Khoảng cao: 3.5M</span>
+                </div>
+                <div class="w-full bg-slate-200 h-3 rounded-full relative overflow-hidden">
+                  <div class="bg-gradient-to-r from-emerald-400 to-teal-600 h-full rounded-full" style="width: 65%;"></div>
+                </div>
+                <p class="text-xs text-emerald-800 mt-2">
+                  💡 <strong>Kết luận AI:</strong> Giá chủ trọ đặt (3.2M) nằm hoàn toàn trong ngưỡng an toàn thị trường Cầu Giấy (chênh lệch -1.5%).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 4 Cols: Landlord Info & Booking Card -->
+        <div class="lg:col-span-4 space-y-4">
+          <!-- Booking Card -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-lg sticky top-20">
+            <div class="pb-3 border-b border-slate-100">
+              <span class="text-xs text-slate-500">Giá thuê niêm yết:</span>
+              <div class="text-2xl font-black text-emerald-700">3,200,000 đ <span class="text-xs font-normal text-slate-500">/ tháng</span></div>
+            </div>
+
+            <!-- Escrow Guarantee Badge -->
+            <div class="my-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs space-y-1.5">
+              <div class="font-bold text-amber-900 flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved text-amber-600"></i> BẢO CHỨNG CỌC ESCROW 48 GIỜ
+              </div>
+              <p class="text-amber-800 leading-snug">
+                Số tiền cọc <strong>500,000 VNĐ</strong> sẽ được Sàn tạm giữ an toàn. Nếu phòng thực tế sai lệch mô tả hoặc chủ bùng hẹn, <strong>hoàn 100% trong 24h</strong>.
+              </p>
+            </div>
+
+            <button onclick="showScreen('scr-04')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 mb-3">
+              <i class="fa-solid fa-lock"></i> ĐẶT CỌC GIỮ PHÒNG 48H
+            </button>
+
+            <button onclick="showScreen('scr-18')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs">
+              <i class="fa-regular fa-comment-dots"></i> Nhắn tin với Chủ trọ
+            </button>
+
+            <!-- Landlord mini profile -->
+            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-3">
+              <div class="w-11 h-11 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-sm">
+                NV
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 flex items-center gap-1">
+                  Nguyễn Văn Chủ
+                  <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+                </div>
+                <div class="text-[11px] text-slate-500">Chủ trọ xác minh CCCD · Đang quản lý 8 phòng</div>
+                <div class="text-[11px] font-bold text-amber-500">⭐ 4.9/5.0 (42 đánh giá thực)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-04: ĐẶT CỌC ESCROW ==================== -->
+    <div id="scr-04" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-04</span>
+          <h1 class="text-xl font-bold text-slate-900">Đặt Cọc Ký Quỹ Giữ Chỗ Escrow Qua VNPAY (Checkout)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /rooms/:id/booking</span>
+      </div>
+
+      <!-- Stepper Header -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-center items-center gap-6 text-xs font-bold">
+        <div class="flex items-center gap-2 text-emerald-700">
+          <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">1</span>
+          <span>Chọn Lịch Hẹn Đến Xem</span>
+        </div>
+        <span class="text-slate-300">───</span>
+        <div class="flex items-center gap-2 text-emerald-700">
+          <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">2</span>
+          <span>Ký Quỹ VNPAY 500k</span>
+        </div>
+        <span class="text-slate-300">───</span>
+        <div class="flex items-center gap-2 text-slate-400">
+          <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">3</span>
+          <span>Đếm Ngược Giữ Chỗ 48h</span>
+        </div>
+      </div>
+
+      <!-- Checkout Form Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div class="md:col-span-7 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+          <h3 class="font-bold text-slate-900 text-base">1. Thông Tin Hẹn Đến Xem Thực Tế</h3>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Ngày hẹn xem phòng</label>
+              <input type="date" value="2026-11-05" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold outline-none focus:border-emerald-600">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Khung giờ hẹn</label>
+              <select class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold outline-none focus:border-emerald-600">
+                <option>17:30 - Chiều</option>
+                <option>09:00 - Sáng</option>
+                <option>19:00 - Tối</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100">
+            <h4 class="font-bold text-slate-900 text-sm mb-2">2. Điều Khoản Bảo Vệ Tiền Cọc Escrow 48H</h4>
+            <div class="space-y-2 text-xs text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked class="mt-0.5 accent-emerald-600">
+                <span>Tôi hiểu rằng số tiền <strong>500,000 VNĐ</strong> sẽ được Sàn tạm giữ an toàn, chủ trọ chưa thể rút tiền ngay.</span>
+              </label>
+              <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked class="mt-0.5 accent-emerald-600">
+                <span>Nếu đến xem phòng mà thực tế bị ẩm mốc, thiếu đồ hoặc chủ trọ bùng hẹn, tôi được quyền bấm <strong>Khiếu nại hoàn cọc 100%</strong> trong 24 giờ.</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-5 space-y-4">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+            <h3 class="font-bold text-slate-900 text-sm mb-3">Tóm Tắt Đơn Cọc Ký Quỹ</h3>
+            <div class="flex gap-3 pb-3 border-b border-slate-100">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=150" class="w-16 h-16 rounded-lg object-cover">
+              <div>
+                <h5 class="font-bold text-slate-800 text-xs">Studio Cầu Giấy (Ngõ 165)</h5>
+                <p class="text-[11px] text-slate-500">Chủ trọ: Nguyễn Văn Chủ</p>
+                <p class="text-[11px] text-emerald-700 font-semibold">Giá thuê: 3,200,000 đ/th</p>
+              </div>
+            </div>
+
+            <div class="py-3 space-y-2 text-xs border-b border-slate-100">
+              <div class="flex justify-between text-slate-600">
+                <span>Số tiền cọc giữ chỗ (Sàn quy định):</span>
+                <span class="font-bold text-slate-900">500,000 VNĐ</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Phí dịch vụ ký quỹ Escrow:</span>
+                <span class="font-bold text-emerald-600">0 VNĐ (Miễn phí)</span>
+              </div>
+              <div class="flex justify-between text-sm font-extrabold text-slate-900 pt-1">
+                <span>TỔNG THANH TOÁN:</span>
+                <span class="text-emerald-700">500,000 VNĐ</span>
+              </div>
+            </div>
+
+            <!-- Payment Method Select -->
+            <div class="my-4">
+              <label class="block text-xs font-bold text-slate-700 mb-2">Phương thức thanh toán qua VNPAY</label>
+              <div class="border-2 border-emerald-500 bg-emerald-50/50 p-2.5 rounded-lg flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-xs text-blue-700">VNPAY-QR</span>
+                  <span class="text-[11px] text-slate-600">Quét mã mọi ngân hàng & ví</span>
+                </div>
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+              </div>
+            </div>
+
+            <button onclick="showScreen('scr-08')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition flex items-center justify-center gap-2 text-xs">
+              <i class="fa-solid fa-shield-halved"></i> XÁC NHẬN THANH TOÁN QUA VNPAY
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-05: KHIẾU NẠI & HOÀN CỌC ==================== -->
+    <div id="scr-05" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Màn hình SCR-05</span>
+          <h1 class="text-xl font-bold text-slate-900">Yêu Cầu Khiếu Nại & Hoàn Cọc 100% (Dispute Filing)</h1>
+        </div>
+        <span class="bg-rose-100 text-rose-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /bookings/:id/dispute</span>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-5">
+        <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-rose-600 text-2xl"></i>
+            <div>
+              <h4 class="font-bold text-rose-900 text-sm">Đơn Cọc #BK-202611-0089 · Số tiền bảo lãnh: 500,000 VNĐ</h4>
+              <p class="text-xs text-rose-700">Thời hạn khiếu nại còn lại: <strong>18 giờ 20 phút</strong> (Trước khi giải ngân)</p>
+            </div>
+          </div>
+          <span class="bg-rose-600 text-white text-xs font-bold px-2.5 py-1 rounded">ESCROW TẠM DỪNG</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">1. Chọn lý do khiếu nại chính</label>
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-2 p-2.5 border border-rose-300 bg-rose-50/50 rounded-lg cursor-pointer font-semibold text-rose-900">
+              <input type="radio" name="reason" checked class="accent-rose-600">
+              Phòng thực tế bị ẩm mốc, xuống cấp nghiêm trọng khác xa ảnh tin đăng
+            </label>
+            <label class="flex items-center gap-2 p-2.5 border border-slate-200 rounded-lg cursor-pointer text-slate-700 hover:bg-slate-50">
+              <input type="radio" name="reason" class="accent-rose-600">
+              Thiếu tiện nghi cam kết (Không có điều hòa, bình nóng lạnh hỏng)
+            </label>
+            <label class="flex items-center gap-2 p-2.5 border border-slate-200 rounded-lg cursor-pointer text-slate-700 hover:bg-slate-50">
+              <input type="radio" name="reason" class="accent-rose-600">
+              Chủ nhà tự ý tăng giá điện nước so với giá niêm yết trên Sàn
+            </label>
+            <label class="flex items-center gap-2 p-2.5 border border-slate-200 rounded-lg cursor-pointer text-slate-700 hover:bg-slate-50">
+              <input type="radio" name="reason" class="accent-rose-600">
+              Chủ trọ bùng hẹn xem phòng không lý do
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">2. Mô tả chi tiết sự việc</label>
+          <textarea rows="3" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-rose-500" placeholder="Em đến xem phòng lúc 17h30, tường bị bong tróc ẩm mốc rất nặng và điều hòa không chạy được..."></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">3. Bằng chứng ảnh / video hiện trường (Tối thiểu 1 ảnh)</label>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="border-2 border-dashed border-rose-300 bg-rose-50/40 rounded-lg p-3 text-center cursor-pointer">
+              <i class="fa-solid fa-cloud-arrow-up text-rose-500 text-xl mb-1"></i>
+              <div class="text-[11px] font-bold text-rose-700">Tải ảnh hiện trường</div>
+              <div class="text-[10px] text-slate-400">PNG, JPG, MP4</div>
+            </div>
+            <div class="relative rounded-lg overflow-hidden border border-slate-200">
+              <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=200" class="w-full h-20 object-cover">
+              <span class="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] px-1 rounded">anh_tuong_moc.jpg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 flex justify-end gap-3">
+          <button onclick="showScreen('scr-08')" class="bg-slate-100 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg">Hủy bỏ</button>
+          <button onclick="showScreen('scr-15')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow transition">
+            Gửi Khiếu Nại Cho Moderator Phân Xử 100% Cọc
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-06: ĐÁNH GIÁ SAU LƯU TRÚ ==================== -->
+    <div id="scr-06" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-06</span>
+          <h1 class="text-xl font-bold text-slate-900">Đánh Giá Xác Minh Sau Lưu Trú (Verified Review)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /bookings/:id/review</span>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl mx-auto space-y-5">
+        <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Đánh giá phòng: Studio Cầu Giấy (Chủ: Nguyễn Văn Chủ)</h4>
+            <span class="text-xs text-emerald-700 font-semibold"><i class="fa-solid fa-shield-halved"></i> Huy hiệu Khách thuê thực tế đã nhận phòng</span>
+          </div>
+        </div>
+
+        <!-- 4 Core Criteria -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">1. An ninh & Trật tự khu vực</span>
+            <div class="text-amber-400 text-sm space-x-1">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <span class="text-slate-600 font-bold ml-1">(5/5)</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">2. Vệ sinh & Môi trường sống</span>
+            <div class="text-amber-400 text-sm space-x-1">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star text-slate-300"></i>
+              <span class="text-slate-600 font-bold ml-1">(4/5)</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">3. Giá điện nước & Đúng cam kết</span>
+            <div class="text-amber-400 text-sm space-x-1">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <span class="text-slate-600 font-bold ml-1">(5/5)</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">4. Thái độ & Hỗ trợ của Chủ trọ</span>
+            <div class="text-amber-400 text-sm space-x-1">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <span class="text-slate-600 font-bold ml-1">(5/5)</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Cảm nhận chi tiết cho cộng đồng sinh viên</label>
+          <textarea rows="3" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-emerald-500" placeholder="Phòng ở thoáng mát, nước máy mạnh, bác chủ trọ dễ tính..."></textarea>
+        </div>
+
+        <button onclick="showScreen('scr-03')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs shadow transition">
+          Gửi Đánh Giá Công Khai Lên Hệ Thống
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-07: ĐĂNG NHẬP & ĐĂNG KÝ ==================== -->
+    <div id="scr-07" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-07</span>
+          <h1 class="text-xl font-bold text-slate-900">Đăng Nhập & Đăng Ký Phân Quyền (Auth Portal)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /auth/login</span>
+      </div>
+
+      <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl max-w-md mx-auto space-y-5">
+        <div class="text-center">
+          <div class="w-12 h-12 bg-emerald-700 text-white rounded-xl mx-auto flex items-center justify-center font-black text-xl mb-2 shadow">
+            SR
+          </div>
+          <h3 class="font-extrabold text-slate-900 text-xl">Chào Mừng Trở Lại</h3>
+          <p class="text-xs text-slate-500">Đăng nhập tài khoản Smart Rental</p>
+        </div>
+
+        <!-- Role Selector -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">Bạn đăng nhập với vai trò gì?</label>
+          <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
+            <button class="p-2.5 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 rounded-lg flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-graduation-cap"></i> Khách Thuê
+            </button>
+            <button class="p-2.5 border border-slate-200 text-slate-600 rounded-lg flex items-center justify-center gap-1.5 hover:bg-slate-50">
+              <i class="fa-solid fa-house-user"></i> Chủ Nhà Trọ
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Email / Số điện thoại</label>
+            <input type="text" value="tenant@smartrental.vn" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-emerald-600 font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mật khẩu</label>
+            <input type="password" value="Password@123" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-emerald-600 font-medium">
+          </div>
+        </div>
+
+        <button onclick="showScreen('scr-01')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow text-xs transition">
+          Đăng Nhập Ngay
+        </button>
+
+        <div class="text-center text-xs text-slate-500">
+          Chưa có tài khoản? <a href="#" class="text-emerald-700 font-bold">Đăng ký mới</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-08: HỒ SƠ & ĐƠN CỌC CỦA TÔI ==================== -->
+    <div id="scr-08" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-08</span>
+          <h1 class="text-xl font-bold text-slate-900">Hồ Sơ Cá Nhân & Quản Lý Đơn Cọc (User Profile)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /profile</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div class="md:col-span-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="text-center pb-4 border-b border-slate-100">
+            <div class="w-16 h-16 rounded-full bg-emerald-700 text-white font-black text-2xl mx-auto flex items-center justify-center mb-2">
+              SV
+            </div>
+            <h4 class="font-bold text-slate-900 text-base">Trần Thị Sinh Viên</h4>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Người thuê đã xác thực</span>
+          </div>
+          <div class="space-y-1 text-xs font-semibold text-slate-600">
+            <button class="w-full text-left p-2 rounded bg-emerald-50 text-emerald-800 font-bold">Lịch Sử Đơn Cọc Escrow (3)</button>
+            <button class="w-full text-left p-2 rounded hover:bg-slate-50">Thông Tin Cá Nhân & SĐT</button>
+            <button class="w-full text-left p-2 rounded hover:bg-slate-50">Phòng Đã Lưu (Yêu Thích)</button>
+          </div>
+        </div>
+
+        <div class="md:col-span-8 space-y-4">
+          <h3 class="font-bold text-slate-900 text-base">Đơn Đặt Cọc Giữ Chỗ Của Bạn</h3>
+
+          <!-- Booking card 1: Active Escrow -->
+          <div class="bg-white p-5 rounded-xl border-2 border-emerald-500 shadow-sm space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-xs font-bold text-slate-600">MÃ ĐƠN: #BK-202611-0089</span>
+              <span class="bg-amber-100 text-amber-900 text-xs font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i class="fa-solid fa-clock"></i> ESCROW_HOLDING: Còn lại 36h
+              </span>
+            </div>
+            <div class="flex gap-4">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=200" class="w-24 h-20 rounded-lg object-cover">
+              <div>
+                <h5 class="font-bold text-slate-900 text-sm">Phòng Studio Khép Kín Ban Công Thoáng Mát</h5>
+                <p class="text-xs text-slate-500">Chủ trọ: Nguyễn Văn Chủ · SĐT: 0903456789</p>
+                <p class="text-xs text-emerald-700 font-bold mt-1">Tiền cọc Sàn giữ: 500,000 VNĐ (Đã thanh toán VNPAY)</p>
+                <p class="text-xs text-slate-600">Lịch hẹn xem: <strong>17:30 ngày 05/11/2026</strong></p>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex justify-end gap-2 text-xs">
+              <button onclick="showScreen('scr-18')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg">Nhắn tin cho Chủ</button>
+              <button onclick="showScreen('scr-05')" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-3 py-1.5 rounded-lg">Khiếu nại hoàn cọc 100%</button>
+            </div>
+          </div>
+
+          <!-- Booking card 2: Completed -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-xs font-bold text-slate-600">MÃ ĐƠN: #BK-202610-0042</span>
+              <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full">ĐÃ HOÀN TẤT THUÊ</span>
+            </div>
+            <div class="flex gap-4">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200" class="w-24 h-20 rounded-lg object-cover">
+              <div>
+                <h5 class="font-bold text-slate-900 text-sm">Chung Cư Mini Lê Thanh Nghị</h5>
+                <p class="text-xs text-slate-500">Đã nhận phòng thành công ngày 15/10/2026</p>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+              <button onclick="showScreen('scr-06')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs">
+                ⭐ Viết Đánh Giá Sau Lưu Trú
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-09: NỘP KYC CHỦ TRỌ ==================== -->
+    <div id="scr-09" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-09</span>
+          <h1 class="text-xl font-bold text-slate-900">Xác Thực Danh Tính Chủ Trọ (Landlord KYC Submission)</h1>
+        </div>
+        <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /landlord/kyc</span>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-5">
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-id-card text-amber-600 text-2xl"></i>
+            <div>
+              <h4 class="font-bold text-amber-900 text-sm">Trạng Thái: PENDING_VERIFICATION</h4>
+              <p class="text-xs text-amber-700">Moderator cam kết duyệt trong vòng 4 giờ làm việc</p>
+            </div>
+          </div>
+          <span class="bg-amber-600 text-white text-xs font-bold px-2.5 py-1 rounded">CHỜ DUYỆT</span>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Số Căn Cước Công Dân (12 số)</label>
+            <input type="text" value="001099012345" class="w-full border border-slate-300 rounded-lg p-2.5 font-bold text-slate-800 outline-none">
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="border-2 border-dashed border-slate-300 p-4 rounded-lg text-center bg-slate-50">
+              <i class="fa-solid fa-camera text-slate-400 text-2xl mb-2"></i>
+              <div class="font-bold text-slate-700 mb-1">Mặt trước CCCD</div>
+              <span class="text-[10px] text-emerald-600 font-bold block">✓ Đã tải: cccd_mat_truoc.jpg</span>
+            </div>
+            <div class="border-2 border-dashed border-slate-300 p-4 rounded-lg text-center bg-slate-50">
+              <i class="fa-solid fa-camera text-slate-400 text-2xl mb-2"></i>
+              <div class="font-bold text-slate-700 mb-1">Mặt sau CCCD</div>
+              <span class="text-[10px] text-emerald-600 font-bold block">✓ Đã tải: cccd_mat_sau.jpg</span>
+            </div>
+            <div class="border-2 border-dashed border-slate-300 p-4 rounded-lg text-center bg-slate-50">
+              <i class="fa-solid fa-file-contract text-slate-400 text-2xl mb-2"></i>
+              <div class="font-bold text-slate-700 mb-1">Sổ đỏ / HĐ Quản lý trọ</div>
+              <span class="text-[10px] text-emerald-600 font-bold block">✓ Đã tải: hop_dong_quan_ly.pdf</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end">
+          <button onclick="showScreen('scr-13')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-lg text-xs shadow transition">
+            Xem Trực Tiếp Tại Hàng Đợi Duyệt Của Moderator →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-10: QUẢN LÝ DANH MỤC PHÒNG (CHỦ TRỌ) ==================== -->
+    <div id="scr-10" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-10</span>
+          <h1 class="text-xl font-bold text-slate-900">Quản Lý Danh Sách Phòng Trọ (Landlord Portal)</h1>
+        </div>
+        <button onclick="showScreen('scr-11')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> Đăng Tin Phòng Mới
+        </button>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">Tổng số phòng</div>
+          <div class="text-2xl font-black text-slate-900 mt-1">8 phòng</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">Còn trống</div>
+          <div class="text-2xl font-black text-emerald-600 mt-1">3 phòng</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">Đang giữ cọc 48h</div>
+          <div class="text-2xl font-black text-amber-500 mt-1">2 đơn</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">Doanh thu tháng</div>
+          <div class="text-2xl font-black text-emerald-700 mt-1">21.5 Tr</div>
+        </div>
+      </div>
+
+      <!-- Room Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-bold text-[11px]">
+              <th class="p-3">Phòng</th>
+              <th class="p-3">Địa chỉ & Diện tích</th>
+              <th class="p-3">Giá niêm yết</th>
+              <th class="p-3">Lượt xem</th>
+              <th class="p-3">Trạng thái</th>
+              <th class="p-3 text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium">
+            <tr>
+              <td class="p-3 flex items-center gap-2">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=100" class="w-12 h-10 rounded object-cover">
+                <span class="font-bold text-slate-800">Studio Cầu Giấy (P.201)</span>
+              </td>
+              <td class="p-3 text-slate-600">Ngõ 165 Cầu Giấy · 28m²</td>
+              <td class="p-3 font-bold text-emerald-700">3,200,000 đ</td>
+              <td class="p-3">482 lượt</td>
+              <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">AVAILABLE</span></td>
+              <td class="p-3 text-right space-x-1">
+                <button class="bg-slate-100 px-2.5 py-1 rounded font-bold hover:bg-slate-200">Sửa</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="p-3 flex items-center gap-2">
+                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=100" class="w-12 h-10 rounded object-cover">
+                <span class="font-bold text-slate-800">CCMN Lê Thanh Nghị (P.402)</span>
+              </td>
+              <td class="p-3 text-slate-600">Ngõ 33 Lê Thanh Nghị · 32m²</td>
+              <td class="p-3 font-bold text-emerald-700">3,800,000 đ</td>
+              <td class="p-3">850 lượt</td>
+              <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">RESERVED (Cọc 48h)</span></td>
+              <td class="p-3 text-right space-x-1">
+                <button onclick="showScreen('scr-12')" class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded font-bold">Xem đơn cọc</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-11: TẠO TIN & ĐỊNH GIÁ AI ==================== -->
+    <div id="scr-11" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-11</span>
+          <h1 class="text-xl font-bold text-slate-900">Tạo Tin Cho Thuê & Tham Khảo Giá AI LightGBM</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /landlord/rooms/new</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div class="md:col-span-7 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tiêu đề bài đăng</label>
+            <input type="text" value="Studio Ban Công Thoáng Gần ĐH Sư Phạm" class="w-full border border-slate-300 rounded-lg p-2.5 font-semibold outline-none focus:border-emerald-600">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Quận / Huyện</label>
+              <select class="w-full border border-slate-300 rounded-lg p-2.5 font-semibold outline-none">
+                <option>Cầu Giấy</option>
+                <option>Hai Bà Trưng</option>
+                <option>Đống Đa</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Diện tích (m²)</label>
+              <input type="number" value="28" class="w-full border border-slate-300 rounded-lg p-2.5 font-semibold outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tiện ích đi kèm</label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-emerald-600"> Điều hòa</label>
+              <label class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-emerald-600"> Nóng lạnh</label>
+              <label class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-emerald-600"> Máy giặt</label>
+              <label class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-emerald-600"> Tủ lạnh</label>
+              <label class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-emerald-600"> Ban công</label>
+              <label class="flex items-center gap-1.5"><input type="checkbox" checked class="accent-emerald-600"> Thang máy</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: AI Valuation Simulator -->
+        <div class="md:col-span-5 space-y-4">
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-300 p-5 rounded-xl shadow-sm text-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> AI Dự Báo Giá Thị Trường
+              </span>
+              <span class="bg-emerald-600 text-white px-2 py-0.5 rounded font-bold text-[10px]">FastAPI + LightGBM</span>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-emerald-200">
+              <div class="text-slate-500">Giá đề xuất bởi mô hình:</div>
+              <div class="text-2xl font-black text-emerald-700 my-0.5">3,250,000 VNĐ</div>
+              <div class="text-[11px] text-slate-500">Khoảng tham chiếu: 3.0M – 3.5M đ</div>
+            </div>
+
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Giá bạn quyết định niêm yết:</label>
+              <div class="flex items-center gap-2">
+                <input type="number" value="3200000" class="w-full border-2 border-emerald-500 rounded-lg p-2 font-black text-base text-emerald-800 outline-none">
+                <span class="font-bold text-slate-600">đ/th</span>
+              </div>
+              <p class="text-[11px] text-emerald-700 font-semibold mt-1">✓ Mức giá chuẩn thị trường (Được duyệt nhanh trong 15p)</p>
+            </div>
+
+            <button onclick="showScreen('scr-14')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow text-xs transition">
+              Gửi Bài Cho Moderator Duyệt Lên Sàn
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-12: QUẢN LÝ ĐƠN CỌC 48H (CHỦ TRỌ) ==================== -->
+    <div id="scr-12" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-12</span>
+          <h1 class="text-xl font-bold text-slate-900">Quản Lý Đơn Khách Cọc Giữ Chỗ (Escrow Orders)</h1>
+        </div>
+        <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /landlord/bookings</span>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold text-slate-500">ĐƠN CỌC #BK-202611-0089</span>
+            <h4 class="font-bold text-slate-900 text-base">Phòng Studio 28m2 Cầu Giấy (P.201)</h4>
+          </div>
+          <span class="bg-amber-100 text-amber-800 font-bold text-xs px-3 py-1 rounded-full">⏳ Còn lại 36 giờ</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-lg">
+          <div>
+            <span class="text-slate-500 block">Khách thuê đặt cọc:</span>
+            <span class="font-bold text-slate-800 text-sm">Trần Thị Sinh Viên</span>
+            <span class="text-slate-500 block">SĐT: 0904*** (Đã cấp quyền liên hệ)</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block">Tiền Sàn đang lưu ký Escrow:</span>
+            <span class="font-black text-emerald-700 text-base">500,000 VNĐ</span>
+            <span class="text-slate-500 block">Giải ngân sau khi nhận phòng</span>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button onclick="showScreen('scr-10')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs shadow transition">
+            ✓ Xác Nhận Khách Đã Nhận Phòng (Giải Ngân Cọc)
+          </button>
+          <button onclick="showScreen('scr-18')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-lg text-xs">
+            Mở Chat Với Khách
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-13: DUYỆT KYC CHỦ TRỌ (MODERATOR) ==================== -->
+    <div id="scr-13" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-purple-700 uppercase tracking-wider">Màn hình SCR-13</span>
+          <h1 class="text-xl font-bold text-slate-900">Hàng Đợi Duyệt Hồ Sơ KYC Chủ Trọ (KYC Moderation)</h1>
+        </div>
+        <span class="bg-purple-100 text-purple-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /mod/kyc</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- List Queue -->
+        <div class="md:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 text-xs">
+          <div class="font-bold text-slate-700 pb-2 border-b border-slate-100">Chờ duyệt (5 hồ sơ · SLA &lt; 4h)</div>
+          <div class="p-3 bg-purple-50 border border-purple-400 rounded-lg cursor-pointer">
+            <div class="font-bold text-slate-900">Nguyễn Văn Chủ</div>
+            <div class="text-slate-500">CCCD: 001099012345 · Nộp 10p trước</div>
+          </div>
+          <div class="p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+            <div class="font-bold text-slate-900">Lê Thị Mai</div>
+            <div class="text-slate-500">Nộp 45p trước</div>
+          </div>
+        </div>
+
+        <!-- Detail Verification View -->
+        <div class="md:col-span-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h4 class="font-bold text-slate-900 text-base">Hồ Sơ: Nguyễn Văn Chủ (SĐT: 0903456789)</h4>
+            <span class="text-xs text-slate-500">Nộp hồ sơ lúc: 10:45 AM</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <span class="text-xs font-bold text-slate-600 block mb-1">Ảnh Mặt Trước CCCD:</span>
+              <div class="h-44 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-center text-slate-400 text-xs font-semibold">
+                [Ảnh CCCD Mặt Trước - Rõ phôi chip]
+              </div>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-slate-600 block mb-1">Ảnh Sổ Đỏ / Giấy Ủy Quyền:</span>
+              <div class="h-44 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-center text-slate-400 text-xs font-semibold">
+                [Ảnh Sổ Đỏ Địa Chỉ Trùng Khớp]
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex justify-end gap-3 text-xs">
+            <button class="bg-rose-100 text-rose-800 font-bold px-4 py-2.5 rounded-lg hover:bg-rose-200">❌ Từ Chối Hồ Sơ</button>
+            <button onclick="showScreen('scr-14')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-lg shadow">
+              ✅ Phê Duyệt Cấp Quyền Đăng Tin
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-14: DUYỆT TIN & CỜ LỆCH GIÁ AI ==================== -->
+    <div id="scr-14" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-purple-700 uppercase tracking-wider">Màn hình SCR-14</span>
+          <h1 class="text-xl font-bold text-slate-900">Hàng Đợi Duyệt Tin Phòng & Cờ Lệch Giá AI (Room Moderation)</h1>
+        </div>
+        <span class="bg-purple-100 text-purple-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /mod/rooms</span>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold text-purple-700">TIN CHỜ DUYỆT #120</span>
+            <h4 class="font-bold text-slate-900 text-base">Phòng Studio 28m2 Cầu Giấy (Nguyễn Văn Chủ - Đã KYC 🛡️)</h4>
+          </div>
+          <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full">GIÁ CHUẨN AI (-1.5%)</span>
+        </div>
+
+        <!-- AI Price Discrepancy Box -->
+        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-between text-xs">
+          <div>
+            <div class="font-bold text-emerald-900">Đối Soát Giá AI LightGBM:</div>
+            <div class="text-emerald-700 mt-0.5">Giá chủ đặt: <strong>3,200,000 đ</strong> | Giá AI tính toán: <strong>3,250,000 đ</strong></div>
+          </div>
+          <span class="bg-emerald-600 text-white font-bold px-2.5 py-1 rounded">KHÔNG GẮN CỜ ẢO</span>
+        </div>
+
+        <!-- Image Integrity Check -->
+        <div>
+          <div class="text-xs font-bold text-slate-700 mb-2">Kiểm tra album ảnh thực tế (Tránh lấy ảnh mạng):</div>
+          <div class="grid grid-cols-4 gap-3">
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300" class="rounded-lg h-24 object-cover border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=300" class="rounded-lg h-24 object-cover border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300" class="rounded-lg h-24 object-cover border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300" class="rounded-lg h-24 object-cover border border-slate-200">
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end gap-3 text-xs">
+          <button class="bg-rose-100 text-rose-800 font-bold px-4 py-2.5 rounded-lg hover:bg-rose-200">Từ Chối Bài Đăng</button>
+          <button onclick="showScreen('scr-01')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-lg shadow">
+            🚀 Duyệt Xuất Bản Lên Sàn
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-15: PHÂN XỬ TRANH CHẤP CỌC ==================== -->
+    <div id="scr-15" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Màn hình SCR-15</span>
+          <h1 class="text-xl font-bold text-slate-900">Phân Xử Khiếu Nại Tranh Chấp Cọc Escrow (Adjudication)</h1>
+        </div>
+        <span class="bg-rose-100 text-rose-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /mod/disputes</span>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h4 class="font-bold text-slate-900 text-base">Đơn Khiếu Nại #BK-202611-0089 · Số tiền: 500,000 VNĐ</h4>
+            <span class="text-xs text-rose-700 font-semibold">Lý do: Phòng thực tế khác xa ảnh tin đăng (Ẩm mốc & hỏng điều hòa)</span>
+          </div>
+          <span class="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full">ĐANG TRANH CHẤP</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 text-xs">
+          <!-- Column 1: Approved Listing Photo -->
+          <div class="space-y-2">
+            <span class="font-bold text-slate-700 block">Ảnh tin đăng gốc lúc Sàn duyệt:</span>
+            <div class="h-44 rounded-lg overflow-hidden border border-slate-300">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400" class="w-full h-full object-cover">
+            </div>
+            <div class="text-[11px] text-slate-500">Tường phòng sạch sẽ, đồ đạc mới</div>
+          </div>
+
+          <!-- Column 2: Actual Evidence from Tenant -->
+          <div class="space-y-2">
+            <span class="font-bold text-rose-700 block">Bằng chứng khách nộp lúc đến xem:</span>
+            <div class="h-44 rounded-lg overflow-hidden border-2 border-rose-400">
+              <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400" class="w-full h-full object-cover">
+            </div>
+            <div class="text-[11px] text-rose-700 font-semibold">Vết ẩm mốc góc tường rõ rệt, điều hòa không chạy</div>
+          </div>
+        </div>
+
+        <!-- Moderator Verdict -->
+        <div class="pt-4 border-t border-slate-200 space-y-3">
+          <div class="text-xs font-bold text-slate-800">Quyết định phán xử của Moderator:</div>
+          <div class="flex gap-4">
+            <button onclick="showScreen('scr-08')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg text-xs shadow transition">
+              💸 Chấp Thuận Khiếu Nại: Hoàn Tiền Cọc 100% Cho Khách Thuê (VNPAY Refund)
+            </button>
+            <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-3 rounded-lg text-xs">
+              Bác Khiếu Nại (Giải Ngân Cho Chủ)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-16: QUẢN TRỊ USER & KHÓA ==================== -->
+    <div id="scr-16" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Màn hình SCR-16</span>
+          <h1 class="text-xl font-bold text-slate-900">Quản Trị Người Dùng & Khóa Tài Khoản (User Admin)</h1>
+        </div>
+        <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /admin/users</span>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+          <input type="text" placeholder="Tìm kiếm theo email, số điện thoại..." class="border border-slate-300 rounded-lg px-3 py-1.5 w-72 text-xs outline-none">
+          <span class="text-slate-500">Tổng cộng: <strong>1,420 tài khoản</strong></span>
+        </div>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-bold text-[11px]">
+              <th class="p-3">Họ tên & Email</th>
+              <th class="p-3">Số ĐT</th>
+              <th class="p-3">Vai trò</th>
+              <th class="p-3">Trạng thái</th>
+              <th class="p-3 text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium">
+            <tr>
+              <td class="p-3 font-bold text-slate-900">Nguyễn Văn Chủ (landlord@smartrental.vn)</td>
+              <td class="p-3">0903456789</td>
+              <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">LANDLORD</span></td>
+              <td class="p-3"><span class="text-emerald-600 font-bold">Hoạt động ✓</span></td>
+              <td class="p-3 text-right"><button class="bg-slate-100 px-2 py-1 rounded hover:bg-slate-200">Chi tiết</button></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-bold text-slate-900">Scammer Phòng Ảo (scam@fake.vn)</td>
+              <td class="p-3">0988776655</td>
+              <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold">LANDLORD</span></td>
+              <td class="p-3"><span class="text-rose-600 font-black">BỊ KHÓA ❌ (Lừa cọc)</span></td>
+              <td class="p-3 text-right"><button class="bg-rose-100 text-rose-800 px-2 py-1 rounded font-bold">Mở khóa</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-17: DASHBOARD ADMIN ==================== -->
+    <div id="scr-17" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Màn hình SCR-17</span>
+          <h1 class="text-xl font-bold text-slate-900">Dashboard Doanh Thu & Chỉ Số Sàn (Admin Analytics)</h1>
+        </div>
+        <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /admin/dashboard</span>
+      </div>
+
+      <!-- Financial Metrics -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-bold uppercase">Tiền cọc đang lưu ký Escrow</div>
+          <div class="text-2xl font-black text-emerald-700 mt-1">420,500,000 đ</div>
+          <div class="text-[11px] text-emerald-600 font-bold mt-1">▲ +12% so với tuần trước</div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-bold uppercase">Doanh thu phí sàn</div>
+          <div class="text-2xl font-black text-slate-900 mt-1">68,200,000 đ</div>
+          <div class="text-[11px] text-emerald-600 font-bold mt-1">▲ +18.5% tháng này</div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-bold uppercase">Tỷ lệ phòng trống sàn</div>
+          <div class="text-2xl font-black text-blue-600 mt-1">14.2%</div>
+          <div class="text-[11px] text-slate-500 mt-1">Giảm 3% so với tháng trước</div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-bold uppercase">SLA duyệt tin trung bình</div>
+          <div class="text-2xl font-black text-purple-700 mt-1">1h 45m</div>
+          <div class="text-[11px] text-emerald-600 font-bold mt-1">✓ Đạt chuẩn KPI &lt; 4h</div>
+        </div>
+      </div>
+
+      <!-- Chart Simulation -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div class="md:col-span-8 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h4 class="font-bold text-slate-900 text-sm mb-4">Biểu Đồ Tăng Trưởng Doanh Thu Ký Quỹ Escrow (Tháng 11/2026)</h4>
+          <div class="h-60 flex items-end justify-between gap-3 pt-6 px-4 border-b border-l border-slate-200 text-xs text-slate-500">
+            <div class="flex-1 flex flex-col items-center gap-2">
+              <div class="w-full bg-emerald-500 rounded-t" style="height: 45%;"></div>
+              <span>Tuần 1</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2">
+              <div class="w-full bg-emerald-500 rounded-t" style="height: 60%;"></div>
+              <span>Tuần 2</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2">
+              <div class="w-full bg-emerald-600 rounded-t" style="height: 75%;"></div>
+              <span>Tuần 3</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2">
+              <div class="w-full bg-emerald-700 rounded-t" style="height: 90%;"></div>
+              <span>Tuần 4</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-xs space-y-3">
+          <h4 class="font-bold text-slate-900 text-sm">Phân Bổ Phòng Theo Khu Vực</h4>
+          <div class="space-y-2">
+            <div>
+              <div class="flex justify-between font-bold mb-1"><span>Cầu Giấy</span><span>38%</span></div>
+              <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-emerald-600 h-2 rounded" style="width: 38%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between font-bold mb-1"><span>Đống Đa</span><span>26%</span></div>
+              <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-emerald-500 h-2 rounded" style="width: 26%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between font-bold mb-1"><span>Hai Bà Trưng</span><span>20%</span></div>
+              <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-teal-500 h-2 rounded" style="width: 20%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between font-bold mb-1"><span>Thanh Xuân</span><span>16%</span></div>
+              <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-cyan-500 h-2 rounded" style="width: 16%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCR-18: CHAT KHÁCH - CHỦ ==================== -->
+    <div id="scr-18" class="screen-container space-y-6">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Màn hình SCR-18</span>
+          <h1 class="text-xl font-bold text-slate-900">Cửa Sổ Nhắn Tin Trực Tiếp Khách - Chủ (In-App Messaging)</h1>
+        </div>
+        <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-semibold">Route: /chat</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 h-[600px] bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Chat Contacts -->
+        <div class="md:col-span-4 border-r border-slate-200 flex flex-col">
+          <div class="p-3 border-b border-slate-100 font-bold text-xs text-slate-700">Hội Thoại Gần Đây</div>
+          <div class="flex-1 overflow-y-auto divide-y divide-slate-100">
+            <div class="p-3 bg-emerald-50 flex items-center gap-3 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">NV</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center">
+                  <h6 class="font-bold text-xs text-slate-900 truncate">Nguyễn Văn Chủ</h6>
+                  <span class="text-[10px] text-emerald-600 font-bold">14:20</span>
+                </div>
+                <p class="text-[11px] text-slate-500 truncate">Được em nhé, đến ngõ 165 Cầu Giấy alo bác</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Conversation Area -->
+        <div class="md:col-span-8 flex flex-col justify-between">
+          <!-- Chat Room Header -->
+          <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=100" class="w-10 h-10 rounded-lg object-cover">
+              <div>
+                <h5 class="font-bold text-xs text-slate-900">Phòng Studio Cầu Giấy (3.2Tr/th)</h5>
+                <span class="text-[11px] text-emerald-700 font-bold">Đang trao đổi về Đơn cọc #BK-202611-0089</span>
+              </div>
+            </div>
+            <button onclick="showScreen('scr-04')" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Xem đơn cọc</button>
+          </div>
+
+          <!-- Message Bubbles -->
+          <div class="p-4 flex-1 overflow-y-auto space-y-3 text-xs">
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-[10px]">NV</div>
+              <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none max-w-sm text-slate-800">
+                Chào em, phòng này điều hòa và bình nóng lạnh mới bảo dưỡng nhé. Chiều em có qua xem được không?
+              </div>
+            </div>
+            <div class="flex gap-2 justify-end">
+              <div class="bg-emerald-600 text-white p-3 rounded-2xl rounded-tr-none max-w-sm">
+                Dạ tầm 17h30 chiều nay em ghé xem phòng thực tế bác nhé!
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-[10px]">NV</div>
+              <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none max-w-sm text-slate-800">
+                Được em nhé, đến đầu ngõ 165 Cầu Giấy alo số 0903456789 bác ra mở cửa.
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="p-3 border-t border-slate-200 flex gap-2">
+            <input type="text" placeholder="Nhập tin nhắn..." class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-600">
+            <button class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-700 transition">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+
+      document.getElementById('screenSelect').value = screenId;
+
+      document.querySelectorAll('.pill-btn').forEach(btn => {
+        if (btn.getAttribute('data-screen') === screenId) {
+          btn.classList.remove('bg-slate-100', 'text-slate-700');
+          btn.classList.add('bg-emerald-600', 'text-white');
+        } else {
+          btn.classList.remove('bg-emerald-600', 'text-white');
+          btn.classList.add('bg-slate-100', 'text-slate-700');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterRole(role) {
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('bg-emerald-800'));
+      event.target.classList.add('bg-emerald-800');
+
+      if (role === 'tenant') showScreen('scr-01');
+      else if (role === 'landlord') showScreen('scr-10');
+      else if (role === 'mod') showScreen('scr-13');
+      else if (role === 'admin') showScreen('scr-17');
+      else showScreen('scr-01');
+    }
+  </script>
+</body>
+</html>
