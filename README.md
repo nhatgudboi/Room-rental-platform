@@ -576,7 +576,11 @@ erDiagram
         boolean has_refrigerator
         boolean has_balcony
         boolean has_elevator
+        boolean has_mezzanine
+        boolean has_parking
         boolean is_free_hours
+        boolean allows_pets
+        boolean is_furnished
     }
 
     ROOM_IMAGES {

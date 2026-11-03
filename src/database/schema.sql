@@ -5,6 +5,7 @@
 -- =============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- 1. ENUM TYPES
 DROP TYPE IF EXISTS user_role CASCADE;
@@ -231,6 +232,7 @@ CREATE INDEX IF NOT EXISTS idx_rooms_district_status ON rooms(district_id, statu
 CREATE INDEX IF NOT EXISTS idx_rooms_price ON rooms(monthly_rent) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_rooms_area ON rooms(area_sqm) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_rooms_coordinates ON rooms(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_rooms_location_gist ON rooms USING gist (ST_SetSRID(ST_MakePoint(longitude, latitude), 4326));
 
 -- Đơn cọc & Ký quỹ
 CREATE INDEX IF NOT EXISTS idx_escrow_status_deadline ON escrow_bookings(status, escrow_holding_deadline);
@@ -259,10 +261,10 @@ INSERT INTO university_landmarks (name, district_id, latitude, longitude) VALUES
 ('Học viện Ngân hàng', 2, 21.009386, 105.829567)
 ON CONFLICT DO NOTHING;
 
--- Seed tài khoản mặc định (Mật khẩu: Password@123 -> $2a$12$e80yq9Rz...)
+-- Seed tài khoản mặc định (Mật khẩu: Password@123 -> $2a$12$TlsdrKg8VyQjoXYi2hdzXu8p5ZsL8cL5x.5MlQFxiixUO7Fnn.1ri)
 INSERT INTO users (id, email, password_hash, full_name, phone_number, role, kyc_status, is_active) VALUES
-(1, 'admin@smartrental.vn', '$2a$12$Xp1L1Z0M8k3k7ZzZzZzZzO1234567890abcdefghijklmnopqrst', 'Quản Trị Viên Sàn', '0901234567', 'ADMIN', 'VERIFIED', TRUE),
-(2, 'moderator@smartrental.vn', '$2a$12$Xp1L1Z0M8k3k7ZzZzZzZzO1234567890abcdefghijklmnopqrst', 'Kiểm Duyệt Viên 01', '0902345678', 'MODERATOR', 'VERIFIED', TRUE),
-(3, 'landlord@smartrental.vn', '$2a$12$Xp1L1Z0M8k3k7ZzZzZzZzO1234567890abcdefghijklmnopqrst', 'Nguyễn Văn Chủ Trọ', '0903456789', 'LANDLORD', 'VERIFIED', TRUE),
-(4, 'tenant@smartrental.vn', '$2a$12$Xp1L1Z0M8k3k7ZzZzZzZzO1234567890abcdefghijklmnopqrst', 'Trần Thị Sinh Viên', '0904567890', 'TENANT', 'UNVERIFIED', TRUE)
+(1, 'admin@smartrental.vn', '$2a$12$TlsdrKg8VyQjoXYi2hdzXu8p5ZsL8cL5x.5MlQFxiixUO7Fnn.1ri', 'Quản Trị Viên Sàn', '0901234567', 'ADMIN', 'VERIFIED', TRUE),
+(2, 'moderator@smartrental.vn', '$2a$12$TlsdrKg8VyQjoXYi2hdzXu8p5ZsL8cL5x.5MlQFxiixUO7Fnn.1ri', 'Kiểm Duyệt Viên 01', '0902345678', 'MODERATOR', 'VERIFIED', TRUE),
+(3, 'landlord@smartrental.vn', '$2a$12$TlsdrKg8VyQjoXYi2hdzXu8p5ZsL8cL5x.5MlQFxiixUO7Fnn.1ri', 'Nguyễn Văn Chủ Trọ', '0903456789', 'LANDLORD', 'VERIFIED', TRUE),
+(4, 'tenant@smartrental.vn', '$2a$12$TlsdrKg8VyQjoXYi2hdzXu8p5ZsL8cL5x.5MlQFxiixUO7Fnn.1ri', 'Trần Thị Sinh Viên', '0904567890', 'TENANT', 'UNVERIFIED', TRUE)
 ON CONFLICT DO NOTHING;

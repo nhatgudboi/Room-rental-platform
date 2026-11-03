@@ -95,7 +95,11 @@ erDiagram
         boolean has_refrigerator
         boolean has_balcony
         boolean has_elevator
+        boolean has_mezzanine
+        boolean has_parking
         boolean is_free_hours
+        boolean allows_pets
+        boolean is_furnished
     }
 
     ROOM_IMAGES {
@@ -214,7 +218,7 @@ erDiagram
 ### 2.5 Bảng `room_amenities` (Tiện Nghi Phòng Trọ)
 * **Mục đích:** Tách biệt các cờ Boolean tiện ích thành bảng riêng để tối ưu hóa truy vấn và làm đầu vào cho mô hình AI.
 * **Quan hệ:** 1:1 với `rooms`.
-* **Trường cốt lõi:** `has_air_conditioner`, `has_water_heater`, `has_washing_machine`, `has_refrigerator`, `has_balcony`, `has_elevator`, `is_free_hours`.
+* **Trường cốt lõi:** `has_air_conditioner`, `has_water_heater`, `has_washing_machine`, `has_refrigerator`, `has_balcony`, `has_elevator`, `has_mezzanine`, `has_parking`, `is_free_hours`, `allows_pets`, `is_furnished`.
 
 ### 2.6 Bảng `escrow_bookings` (Ký Quỹ Đặt Cọc Giữ Phòng)
 * **Mục đích:** Trụ cột quản lý luồng tiền cọc an toàn, ngăn chặn lừa đảo bùng cọc.
@@ -254,7 +258,8 @@ erDiagram
 | :--- | :--- | :--- | :---: | :--- |
 | `idx_rooms_district_status` | `rooms` | `(district_id, status)` | B-Tree Partial | Tối ưu bộ lọc phòng theo Quận đang ở trạng thái khả dụng (`WHERE deleted_at IS NULL`). |
 | `idx_rooms_price` | `rooms` | `monthly_rent` | B-Tree | Tối ưu hóa truy vấn lọc khoảng giá ngân sách ($< 2M$, $2-4M$, $> 4M$). |
-| `idx_rooms_coordinates` | `rooms` | `(latitude, longitude)` | GiST / Composite | Tối ưu tính toán khoảng cách bán kính quanh trường đại học ($< 3km$). |
+| `idx_rooms_coordinates` | `rooms` | `(latitude, longitude)` | Composite B-Tree | Tối ưu hóa truy vấn kết hợp tọa độ địa lý. |
+| `idx_rooms_location_gist` | `rooms` | `ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)` | PostGIS GiST | Tối ưu hóa tính toán bán kính quanh trường đại học (`ST_DWithin < 3km`). |
 | `idx_escrow_status_deadline` | `escrow_bookings` | `(status, escrow_holding_deadline)` | B-Tree | Tối ưu tác vụ chạy ngầm tự động quét và giải phóng các đơn cọc quá hạn 48 giờ. |
 | `idx_messages_conversation` | `messages` | `(sender_id, receiver_id, created_at)` | Composite B-Tree | Tối ưu tốc độ tải lịch sử chat giữa 2 người dùng theo thứ tự thời gian. |
 | `idx_reviews_room_rating` | `reviews` | `(room_id, overall_rating)` | Composite B-Tree | Tối ưu tính toán điểm trung bình sao hiển thị trên trang chi tiết phòng. |
