@@ -289,6 +289,7 @@ flowchart TD
 ### 2.2 Screen hierarchy
 
 The application architecture partitions navigation into public discovery and three dedicated authenticated portals:
+
 - **Public & Tenant Shell:** Home & hero search (`SCR-01`), interactive map & filter view (`SCR-02`), room details with AI gauge (`SCR-03`), 48h escrow booking checkout (`SCR-04`), booking history & dispute manager (`SCR-05`), profile & saved rooms (`SCR-06`), and post-stay review submission (`SCR-07`).
 - **Landlord Management Portal:** Landlord dashboard (`SCR-08`), listing creation with real-time AI valuation widget (`SCR-09`), room inventory manager (`SCR-10`), KYC submission (`SCR-11`), and booking manager (`SCR-12`).
 - **Moderator Auditing Desk:** Moderator dashboard (`SCR-13`), listing inspection queue (`SCR-14`), KYC verification queue (`SCR-15`), and dispute adjudication center (`SCR-16`).
@@ -297,16 +298,17 @@ The application architecture partitions navigation into public discovery and thr
 
 Detailed screen inventories, UI component breakdown, accessibility rules, and state specifications are maintained in [Information Architecture](docs/04-information-architecture.md).
 
-### 2.3 Giao diện thực tế & Thư viện 18 màn hình (UI/UX Visual Showcase)
+### 2.3 Real-world Interface & 18-Screen Library (UI/UX Visual Showcase)
 
 > [!NOTE]
-> **Về thanh chuyển đổi vai trò (Role Switcher) trên thanh điều hướng giao diện:**
-> 
+> **Regarding the Role Switcher on the interface navigation bar:**
+>
 > The top navigation bar includes an interactive role switcher pill: **`[Tenant | Landlord | Moderator | Admin]`**.
-> * **Purpose in the Current UI/UX Prototype Phase:** The entire frontend is currently operating with a comprehensive **Mock Data suite**. This segmented control is intentionally provided so that evaluators, reviewers, and stakeholders can **seamlessly switch between all four operational perspectives** within a single session, inspecting all 18 screens without the friction of repeatedly logging in and out across four distinct test accounts.
-> * **In the Production Deployment (Full-Flow Implementation):** This switcher will be **entirely removed**. The platform will strictly enforce standard authentication and authorization boundaries:
->   * Each role will authenticate through isolated credentials and JWT session tokens.
->   * Permissions are strictly enforced via multi-layer RBAC (Role-Based Access Control) at both the API Gateway and database levels: Tenants only access room discovery and deposit checkout; Landlords must pass chip-based CCCD identity verification before unlocking the property management portal; Moderators and Administrators access dedicated command consoles protected by cryptographic audit trails.
+>
+> - **Purpose in the Current UI/UX Prototype Phase:** The entire frontend is currently operating with a comprehensive **Mock Data suite**. This segmented control is intentionally provided so that evaluators, reviewers, and stakeholders can **seamlessly switch between all four operational perspectives** within a single session, inspecting all 18 screens without the friction of repeatedly logging in and out across four distinct test accounts.
+> - **In the Production Deployment (Full-Flow Implementation):** This switcher will be **entirely removed**. The platform will strictly enforce standard authentication and authorization boundaries:
+>   - Each role will authenticate through isolated credentials and JWT session tokens.
+>   - Permissions are strictly enforced via multi-layer RBAC (Role-Based Access Control) at both the API Gateway and database levels: Tenants only access room discovery and deposit checkout; Landlords must pass chip-based CCCD identity verification before unlocking the property management portal; Moderators and Administrators access dedicated command consoles protected by cryptographic audit trails.
 
 ---
 
@@ -472,6 +474,7 @@ Detailed screen inventories, UI component breakdown, accessibility rules, and st
 ### 2.4 Core User Journeys
 
 The platform UX revolves around three critical operational journeys:
+
 1. **Tenant Journey:** Discover rooms via map & filters → Evaluate AI price gauge → Place 48h escrow deposit via VNPAY → Check-in or file dispute.
 2. **Landlord Journey:** Register account → Complete KYC identity verification → Post room with real-time LightGBM AI pricing advice → Receive booking requests.
 3. **Dispute & Refund Journey:** Tenant reports discrepancies within 48h → Moderator reviews photo evidence → System triggers automated VNPAY refund.
@@ -936,6 +939,7 @@ src/frontend/src/
 ```
 
 Target dependency flow:
+
 ```text
 Page/Component → Feature Hook → Feature Service → apiClient → Spring Boot REST API
 ```
@@ -955,6 +959,7 @@ src/backend/src/main/java/com/smartrental/
 ```
 
 Dependency rules:
+
 ```text
 Controller → Service
 Service → Repository & External Clients (WebClient / VNPAY)
